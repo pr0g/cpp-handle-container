@@ -24,7 +24,6 @@ namespace thh
     handle->gen_++;
 
     element_ids_[next_] = handle->id_;
-
     next_ = handles_[next_].next_;
 
     return *handle;
@@ -44,14 +43,16 @@ namespace thh
   template<typename T>
   inline bool container_t<T>::remove(const handle_t handle)
   {
+    assert(element_ids_.size() == elements_.size());
+    
     if (!has(handle)) {
       return false;
     }
 
-    handles_[element_ids_[element_ids_.size() - 1]].lookup_ =
-      handles_[handle.id_].lookup_;
-    elements_[handles_[handle.id_].lookup_] = elements_[elements_.size() - 1];
-    element_ids_[handles_[handle.id_].lookup_] = element_ids_[element_ids_.size() - 1];
+    const size_t back = element_ids_.size() - 1;
+    handles_[element_ids_[back]].lookup_ = handles_[handle.id_].lookup_;
+    std::swap(elements_[handles_[handle.id_].lookup_], elements_[back]);
+    std::swap(element_ids_[handles_[handle.id_].lookup_], element_ids_[back]);
 
     handles_[handle.id_].lookup_ = -1;
     handles_[handle.id_].next_ = next_;
@@ -88,10 +89,10 @@ namespace thh
   template<typename T>
   T* container_t<T>::resolve(const handle_t handle)
   {
-    return const_cast<T*>(static_cast<const container_t&>(*this).resolve(handle));
+    return const_cast<T*>(
+      static_cast<const container_t&>(*this).resolve(handle));
   }
 
-  // debug
   template<typename T>
   int container_t<T>::debug_handles(int buffer_size, char buffer[]) {
     const char* filled_glyph = "[o]";
