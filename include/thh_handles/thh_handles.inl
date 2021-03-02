@@ -94,6 +94,15 @@ namespace thh
   }
 
   template<typename T>
+  template<typename Fn>
+  void container_t<T>::enumerate(Fn&& fn)
+  {
+    for (auto& element : elements_) {
+      fn(element);
+    }
+  }
+
+  template<typename T>
   int container_t<T>::debug_handles(int buffer_size, char buffer[]) {
     const char* filled_glyph = "[o]";
     const char* empty_glyph = "[x]";

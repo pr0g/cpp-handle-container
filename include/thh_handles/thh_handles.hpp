@@ -42,6 +42,9 @@ namespace thh
     size_t size() const;
     size_t capacity() const;
 
+    template<typename Fn>
+    void enumerate(Fn&& fn);
+
     int debug_handles(int buffer_size, char buffer[]);
   };
 } // namespace thh

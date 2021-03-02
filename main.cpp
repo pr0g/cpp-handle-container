@@ -335,3 +335,50 @@ TEST_CASE("EnsureResourceCleanedUpAfterRemoval")
 
   CHECK(value == 42);
 }
+
+TEST_CASE("EnumerateMutableElements") {
+  struct entity_t {
+    int x = 0;
+    int y = 0;
+  };
+
+  thh::container_t<entity_t> entities;
+  std::vector<thh::handle_t> entity_handles;
+  for (size_t i = 0; i < 10; ++i) {
+    entity_handles.push_back(entities.add());
+  }
+
+  entities.enumerate([](entity_t& entity) {
+    entity.x += 1;
+    entity.y += 2;
+  });
+
+  for (const auto& entity_handle : entity_handles) {
+    const auto* entity = entities.resolve(entity_handle);
+    CHECK(entity->x == 1);
+    CHECK(entity->y == 2);
+  }
+}
+
+TEST_CASE("EnumerateImmutableElements") {
+  struct entity_t {
+    int w = 2;
+    int h = 1;
+  };
+  
+  thh::container_t<entity_t> entities;
+  std::vector<thh::handle_t> entity_handles;
+  for (size_t i = 0; i < 10; ++i) {
+    entity_handles.push_back(entities.add());
+  }
+
+  int total_width = 0, total_height = 0;
+  entities.enumerate(
+    [&total_width, &total_height](const entity_t& entity) mutable {
+    total_width += entity.w;
+    total_height += entity.h;
+  });
+
+  CHECK(total_height == 10);
+  CHECK(total_width == 20);
+}
