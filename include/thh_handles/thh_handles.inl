@@ -124,7 +124,6 @@ namespace thh
         } else {
             glyph = filled_glyph;
         }
-
         strcat(buffer, glyph);
       }
       return 0;
