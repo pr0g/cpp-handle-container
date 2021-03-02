@@ -309,6 +309,9 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
   // ensure objects are tightly packed
   ptrdiff_t size = end - begin;
   CHECK(size == 1);
+
+  delete[] buffer;
+  delete[] expected_buffer;
 }
 
 TEST_CASE("EnsureResourceCleanedUpAfterRemoval")
@@ -381,4 +384,24 @@ TEST_CASE("EnumerateImmutableElements") {
 
   CHECK(total_height == 10);
   CHECK(total_width == 20);
+}
+
+TEST_CASE("HandleResolvesAfterInternalMove") {
+  thh::container_t<int> container;
+  thh::handle_t handles[5];
+  for (int i = 0; i < 5; ++i) {
+    handles[i] = container.add();
+  }
+  for (int i = 0; i < 5; ++i) {
+    auto* value = container.resolve(handles[i]);
+    *value = i + 1;
+  }
+
+  void* address_before = container.resolve(handles[0]);
+
+  container.remove(handles[0]);
+  const auto* last = container.resolve(handles[4]);
+  
+  CHECK(*last == 5);
+  CHECK(last == address_before);
 }
