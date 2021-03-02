@@ -8,8 +8,8 @@ namespace thh
 {
   struct handle_t
   {
-    int32_t id_;
-    int32_t gen_;
+    int32_t id_ = -1;
+    int32_t gen_ = -1;
 
     handle_t() = default;
     handle_t(const int32_t id, const int32_t gen)
@@ -22,8 +22,8 @@ namespace thh
     struct internal_handle_t
     {
       handle_t handle_;
-      int32_t lookup_;
-      int32_t next_;
+      int32_t lookup_ = -1;
+      int32_t next_ = -1;
     };
 
     std::vector<T> elements_;
