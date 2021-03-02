@@ -310,3 +310,28 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
   ptrdiff_t size = end - begin;
   CHECK(size == 1);
 }
+
+TEST_CASE("EnsureResourceCleanedUpAfterRemoval")
+{
+  struct resource_t
+  {
+    ~resource_t() {
+      *resource_ = 42;
+    }
+    int* resource_ = nullptr;
+  };
+
+  thh::container_t<resource_t> container;
+  const auto resource_handle = container.add();
+  
+  int value = 100;
+
+  {
+    auto* resource = container.resolve(resource_handle);
+    resource->resource_ = &value;
+  }
+
+  container.remove(resource_handle);
+
+  CHECK(value == 42);
+}
