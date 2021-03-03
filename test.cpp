@@ -405,3 +405,27 @@ TEST_CASE("HandleResolvesAfterInternalMove") {
   CHECK(*last == 5);
   CHECK(last == address_before);
 }
+
+TEST_CASE("ElementsCanBeReserved") {
+  thh::container_t<int> container;
+  container.reserve(10);
+  CHECK(container.size() == 0);
+  CHECK(container.capacity() == 10);
+}
+
+TEST_CASE("ElementsCanBeReservedAfterFirstUse") {
+  thh::container_t<int> container;
+  thh::handle_t handles[5];
+  for (int i = 0; i < 5; ++i) {
+    handles[i] = container.add();
+  }
+  
+  container.reserve(10);
+
+  for (int i = 0; i < 5; ++i) {
+    CHECK(container.has(handles[i]));
+  }
+
+  CHECK(container.size() == 5);
+  CHECK(container.capacity() == 10);
+}

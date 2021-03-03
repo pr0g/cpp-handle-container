@@ -1,23 +1,27 @@
 namespace thh
 {
   template<typename T>
+  inline void container_t<T>::try_allocate_more_handles()
+  {
+    if (handles_.size() < elements_.capacity()) {
+      handles_.resize(elements_.capacity());
+      for (size_t i = last_handle_size_; i < handles_.size(); ++i) {
+        handles_[i].handle_ = handle_t(i, -1);
+        handles_[i].lookup_ = -1;
+        handles_[i].next_ = i + 1;
+      }
+      last_handle_size_ = handles_.size();
+    }
+  }
+
+  template<typename T>
   inline handle_t container_t<T>::add()
   {
     const int index = elements_.size();
     elements_.emplace_back();
     element_ids_.emplace_back();
 
-    if (handles_.size() < elements_.capacity()) {
-      handles_.resize(elements_.capacity());
-    }
-
-    for (size_t i = last_handle_size_; i < handles_.size(); ++i) {
-      handles_[i].handle_ = handle_t(i, -1);
-      handles_[i].lookup_ = -1;
-      handles_[i].next_ = i + 1;
-    }
-
-    last_handle_size_ = handles_.size();
+    try_allocate_more_handles();
 
     handles_[next_].lookup_ = index;
     handle_t* handle = &handles_[next_].handle_;
@@ -91,6 +95,15 @@ namespace thh
   {
     return const_cast<T*>(
       static_cast<const container_t&>(*this).resolve(handle));
+  }
+
+  template<typename T>
+  void container_t<T>::reserve(const size_t capacity)
+  {
+    elements_.reserve(capacity);
+    element_ids_.reserve(capacity);
+    
+    try_allocate_more_handles();
   }
 
   template<typename T>

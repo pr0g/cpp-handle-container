@@ -32,6 +32,8 @@ namespace thh
 
     int32_t next_ = 0;
     size_t last_handle_size_ = 0;
+
+    void try_allocate_more_handles();
   
   public:
     handle_t add();
@@ -41,6 +43,7 @@ namespace thh
     T* resolve(handle_t handle);
     size_t size() const;
     size_t capacity() const;
+    void reserve(size_t capacity);
 
     template<typename Fn>
     void enumerate(Fn&& fn);

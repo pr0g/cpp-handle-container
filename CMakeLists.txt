@@ -16,5 +16,5 @@ target_include_directories(
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 
 add_executable(${PROJECT_NAME}_test)
-target_sources(${PROJECT_NAME}_test PRIVATE main.cpp)
+target_sources(${PROJECT_NAME}_test PRIVATE test.cpp)
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} doctest)
