@@ -8,6 +8,7 @@ static void AddElement(benchmark::State& state) {
   for (auto _ : state) {
     const thh::handle_t handle = container.add();
     benchmark::DoNotOptimize(handle);
+    benchmark::ClobberMemory();
   }
 }
 
@@ -19,6 +20,7 @@ static void AddElementWithReserve(benchmark::State& state) {
   for (auto _ : state) {
     const thh::handle_t handle = container.add();
     benchmark::DoNotOptimize(handle);
+    benchmark::ClobberMemory();
   }
 }
 
@@ -29,6 +31,7 @@ static void RemoveElement(benchmark::State& state) {
   const thh::handle_t handle = container.add();
   for (auto _ : state) {
     container.remove(handle);
+    benchmark::ClobberMemory();
   }
 }
 
@@ -38,7 +41,7 @@ static void HasElementPresent(benchmark::State& state) {
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
   for (auto _ : state) {
-    container.has(handle);
+    benchmark::DoNotOptimize(container.has(handle));
   }
 }
 
@@ -49,7 +52,7 @@ static void HasElementNotPresent(benchmark::State& state) {
   thh::handle_t handle = container.add();
   container.remove(handle);
   for (auto _ : state) {
-    container.has(handle);
+    benchmark::DoNotOptimize(container.has(handle));
   }
 }
 
@@ -61,6 +64,7 @@ static void Resolve(benchmark::State& state) {
   for (auto _ : state) {
     int* element = container.resolve(handle);
     benchmark::DoNotOptimize(element);
+    benchmark::ClobberMemory();
   }
 }
 
@@ -75,6 +79,7 @@ static void EnumerateCallback(benchmark::State& state) {
   for (auto _ : state) {
     container.enumerate([i = 0](auto& element) mutable {
       element = i++;
+      benchmark::ClobberMemory();
     });
   }
 }
@@ -91,6 +96,7 @@ static void EnumerateCallbackResolve(benchmark::State& state) {
     for (int i = 0; i < container.size(); ++i) {
       int* element = container.resolve(handles[i]);
       *element = i;
+      benchmark::ClobberMemory();
     }
   }
 }
