@@ -95,4 +95,6 @@ static void EnumerateCallbackResolve(benchmark::State& state) {
   }
 }
 
+BENCHMARK(EnumerateCallbackResolve);
+
 BENCHMARK_MAIN();
