@@ -49,7 +49,7 @@ namespace thh
   inline bool container_t<T>::remove(const handle_t handle)
   {
     assert(element_ids_.size() == elements_.size());
-    
+
     if (!has(handle)) {
       return false;
     }
@@ -111,7 +111,7 @@ namespace thh
   {
     elements_.reserve(capacity);
     element_ids_.reserve(capacity);
-    
+
     try_allocate_more_handles();
   }
 
@@ -139,7 +139,8 @@ namespace thh
   }
 
   template<typename T>
-  int container_t<T>::debug_handles(char buffer[], int buffer_size /*=0*/) {
+  int container_t<T>::debug_handles(char buffer[], int buffer_size /*=0*/)
+  {
     const char* filled_glyph = "[o]";
     const char* empty_glyph = "[x]";
 
@@ -156,9 +157,9 @@ namespace thh
       for (size_t i = 0; i < capacity(); i++) {
         const char* glyph = nullptr;
         if (handles_[i].lookup_ == -1) {
-            glyph = empty_glyph;
+          glyph = empty_glyph;
         } else {
-            glyph = filled_glyph;
+          glyph = filled_glyph;
         }
         strcat(buffer, glyph);
       }

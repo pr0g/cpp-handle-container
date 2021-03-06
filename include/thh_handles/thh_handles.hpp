@@ -12,8 +12,7 @@ namespace thh
     int32_t gen_ = -1;
 
     handle_t() = default;
-    handle_t(const int32_t id, const int32_t gen)
-      : id_(id), gen_(gen) {}
+    handle_t(const int32_t id, const int32_t gen) : id_(id), gen_(gen) {}
   };
 
   template<typename T>
@@ -34,7 +33,7 @@ namespace thh
     size_t last_handle_size_ = 0;
 
     void try_allocate_more_handles();
-  
+
   public:
     handle_t add();
     bool remove(handle_t handle);
