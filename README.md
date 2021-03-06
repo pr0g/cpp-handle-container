@@ -12,4 +12,6 @@ Excellent resources on the subject:
 
 ## Building
 
-When building the tests and benchmarks, `-DBENCHMARK_ENABLE_TESTING=OFF` must be passed to CMake at configure time to ensure the Google Test dependency on Google Benchmark is not required.
+To build tests and benchmarks pass `-DTHH_HANDLE_ENABLE_TEST` and `-DTHH_HANDLE_ENABLE_BENCH`.
+
+Note: `-DBENCHMARK_ENABLE_TESTING=OFF` is passed to CMake at configure time to ensure the Google Test dependency on Google Benchmark is not required.
