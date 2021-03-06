@@ -100,7 +100,7 @@ static void EnumerateCallbackResolve(benchmark::State& state)
     handles.push_back(container.add());
   }
   for (auto _ : state) {
-    for (size_t i = 0; i < container.size(); ++i) {
+    for (int64_t i = 0; i < container.size(); ++i) {
       int* element = container.resolve(handles[i]);
       *element = static_cast<int>(i);
       benchmark::ClobberMemory();
