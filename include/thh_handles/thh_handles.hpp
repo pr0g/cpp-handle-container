@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <string>
 
 namespace thh
 {
@@ -48,7 +49,7 @@ namespace thh
     template<typename Fn>
     void enumerate(Fn&& fn);
 
-    int32_t debug_handles(char buffer[], int32_t buffer_size = 0);
+    std::string debug_handles();
   };
 } // namespace thh
 

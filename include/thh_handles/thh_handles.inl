@@ -150,36 +150,22 @@ namespace thh
   }
 
   template<typename T>
-  int32_t container_t<T>::debug_handles(
-    char buffer[], const int32_t buffer_size /*=0*/)
+  std::string container_t<T>::debug_handles()
   {
-    const char* filled_glyph = "[o]";
-    const char* empty_glyph = "[x]";
+    constexpr const char filled_glyph[] = "[o]";
+    constexpr const char empty_glyph[] = "[x]";
 
-    const size_t filled_glyph_len = strlen(filled_glyph);
-    const size_t empty_glyph_len = strlen(empty_glyph);
-    const size_t required_buffer_size =
-      capacity() * std::max(filled_glyph_len, empty_glyph_len) + 1;
-
-    assert(required_buffer_size <= std::numeric_limits<int32_t>::max());
-    const auto signed_required_buffer_size =
-      static_cast<int32_t>(required_buffer_size);
-
-    if (buffer == nullptr) {
-      return signed_required_buffer_size;
-    } else if (buffer_size < signed_required_buffer_size) {
-      return -1;
-    } else {
-      for (size_t i = 0; i < capacity(); i++) {
-        const char* glyph = nullptr;
-        if (handles_[i].lookup_ == -1) {
-          glyph = empty_glyph;
-        } else {
-          glyph = filled_glyph;
-        }
-        strcat_s(buffer, buffer_size, glyph);
+    std::string buffer;
+    for (size_t i = 0; i < capacity(); i++) {
+      const char* glyph = nullptr;
+      if (handles_[i].lookup_ == -1) {
+        glyph = empty_glyph;
+      } else {
+        glyph = filled_glyph;
       }
-      return 0;
+      buffer.append(glyph);
     }
+
+    return buffer;
   }
 } // namespace thh

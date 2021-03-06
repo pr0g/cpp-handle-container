@@ -260,7 +260,9 @@ TEST_CASE("ElementsRemainPackedAfterRemoval")
 TEST_CASE("ContainerDebugVisualization")
 {
   thh::container_t<float> container;
-  thh::handle_t handles[5];
+  const size_t handle_count = 5;
+  thh::handle_t handles[handle_count];
+  container.reserve(handle_count);
   for (size_t i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
@@ -268,65 +270,42 @@ TEST_CASE("ContainerDebugVisualization")
   container.remove(handles[2]);
   container.remove(handles[0]);
 
-  const int32_t buffer_size = container.debug_handles(nullptr);
-  char* buffer = new char[buffer_size];
-  buffer[0] = '\0';
-
-  container.debug_handles(buffer, buffer_size);
-
-  char* expected_buffer = new char[buffer_size];
-  expected_buffer[0] = '\0';
-
-  for (size_t i = 0; i < container.capacity(); i++) {
-    strcat_s(expected_buffer, buffer_size, "[x]");
-  }
-
-  memcpy(expected_buffer, "[x][o][x][o][o]", 15);
-
-  CHECK(strcmp(expected_buffer, buffer) == 0);
-
-  delete[] buffer;
-  delete[] expected_buffer;
+  const std::string buffer = container.debug_handles();
+  const std::string expected_buffer = "[x][o][x][o][o]";
+  CHECK(expected_buffer == buffer);
 }
 
 TEST_CASE("EnsureHandlesReaddedInOrder")
 {
   thh::container_t<float> container;
-  thh::handle_t handles[5];
+  const size_t handle_count = 5;
+  thh::handle_t handles[handle_count];
+  container.reserve(handle_count);
   for (size_t i = 0; i < 5; ++i) {
     handles[i] = container.add();
   }
 
-  const int32_t buffer_size = container.debug_handles(nullptr);
-  char* buffer = new char[buffer_size];
-  buffer[0] = '\0';
-
-  char* expected_buffer = new char[buffer_size];
-  expected_buffer[0] = '\0';
-
+  std::string expected_buffer;
   for (size_t i = 0; i < container.capacity(); i++) {
-    strcat_s(expected_buffer, buffer_size, "[x]");
+    expected_buffer.append("[x]");
   }
 
   for (size_t i = 0; i < std::size(handles); ++i) {
     container.remove(handles[i]);
   }
 
-  container.debug_handles(buffer, buffer_size);
-
-  CHECK(strcmp(expected_buffer, buffer) == 0);
+  std::string buffer = container.debug_handles();
+  CHECK(expected_buffer == buffer);
 
   thh::handle_t first_new_handle = container.add();
-  buffer[0] = '\0';
-  container.debug_handles(buffer, buffer_size);
-  memcpy(expected_buffer, "[x][x][x][x][o]", 15);
-  CHECK(strcmp(expected_buffer, buffer) == 0);
+  buffer = container.debug_handles();
+  expected_buffer = "[x][x][x][x][o]";
+  CHECK(expected_buffer == buffer);
 
   thh::handle_t second_new_handle = container.add();
-  buffer[0] = '\0';
-  container.debug_handles(buffer, buffer_size);
-  memcpy(expected_buffer, "[x][x][x][o][o]", 15);
-  CHECK(strcmp(expected_buffer, buffer) == 0);
+  buffer = container.debug_handles();
+  expected_buffer = "[x][x][x][o][o]";
+  CHECK(expected_buffer == buffer);
 
   float* begin = container.resolve(first_new_handle);
   float* end = container.resolve(second_new_handle);
@@ -334,9 +313,6 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
   // ensure objects are tightly packed
   ptrdiff_t size = end - begin;
   CHECK(size == 1);
-
-  delete[] buffer;
-  delete[] expected_buffer;
 }
 
 TEST_CASE("EnsureResourceCleanedUpAfterRemoval")
