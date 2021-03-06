@@ -23,7 +23,7 @@ namespace thh
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
 
     const auto index = static_cast<int32_t>(elements_.size());
-    
+
     // allocate new element
     elements_.emplace_back();
     element_ids_.emplace_back();
