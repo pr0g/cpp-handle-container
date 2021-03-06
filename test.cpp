@@ -11,6 +11,7 @@ TEST_CASE("CanAllocContainer") {
 TEST_CASE("ContainerSizeZeroAfterInit") {
   thh::container_t<char> container;
   const int container_size = container.size();
+  CHECK(container_size == 0);
 }
 
 TEST_CASE("InitialHandleReturnedIsZero") {
@@ -21,7 +22,7 @@ TEST_CASE("InitialHandleReturnedIsZero") {
 
 TEST_CASE("ContainerSizeIsOneAfterSingleAdd") {
   thh::container_t<char> container;
-  thh::handle_t handle = container.add();
+  [[maybe_unused]] thh::handle_t handle = container.add();
   CHECK(container.size() == 1);
 }
 
@@ -51,14 +52,14 @@ TEST_CASE("EmptyContainerDoesNotHaveHandle") {
 
 TEST_CASE("ContainerDoesNotHaveHandleId") {
   thh::container_t<char> container;
-  thh::handle_t handle = container.add();
+  [[maybe_unused]] thh::handle_t handle = container.add();
   thh::handle_t other_handle(1, 0);
   CHECK(!container.has(other_handle));
 }
 
 TEST_CASE("ContainerDoesNotHaveHandleGen") {
   thh::container_t<char> container;
-  thh::handle_t handle = container.add();
+  [[maybe_unused]] thh::handle_t handle = container.add();
   thh::handle_t other_handle(0, 1);
   CHECK(!container.has(other_handle));
 }
@@ -66,8 +67,8 @@ TEST_CASE("ContainerDoesNotHaveHandleGen") {
 TEST_CASE("RemoveDecreasesSize") {
   thh::container_t<char> container;
   thh::handle_t handle1 = container.add();
-  thh::handle_t handle2 = container.add();
-  thh::handle_t handle3 = container.add();
+  [[maybe_unused]] thh::handle_t handle2 = container.add();
+  [[maybe_unused]] thh::handle_t handle3 = container.add();
 
   CHECK(container.size() == 3);
 
@@ -108,17 +109,20 @@ TEST_CASE("MultipleAddsAndRemovesReturnsExpectedSize") {
   thh::handle_t handle1 = container.add();
   thh::handle_t handle2 = container.add();
   thh::handle_t handle3 = container.add();
-  thh::handle_t handle4 = container.add();
-  thh::handle_t handle5 = container.add();
+  [[maybe_unused]] thh::handle_t handle4 = container.add();
+  [[maybe_unused]] thh::handle_t handle5 = container.add();
   bool removed1 = container.remove(handle1);
   bool removed2 = container.remove(handle2);
   bool removed3 = container.remove(handle3);
+  CHECK(removed1);
+  CHECK(removed2);
+  CHECK(removed3);
   
-  thh::handle_t handle6 = container.add();
-  thh::handle_t handle7 = container.add();
-  thh::handle_t handle8 = container.add();
-  thh::handle_t handle9 = container.add();
-  thh::handle_t handle10 = container.add();
+  [[maybe_unused]] thh::handle_t handle6 = container.add();
+  [[maybe_unused]] thh::handle_t handle7 = container.add();
+  [[maybe_unused]] thh::handle_t handle8 = container.add();
+  [[maybe_unused]] thh::handle_t handle9 = container.add();
+  [[maybe_unused]] thh::handle_t handle10 = container.add();
 
   CHECK(container.size() == 7);
 }
@@ -127,21 +131,21 @@ TEST_CASE("AddAndRemoveHandlesReverseOrder") {
   thh::container_t<char> container;
   constexpr const size_t element_count = 10;
   thh::handle_t handles[element_count];
-  for (int i = 0; i < element_count; i++) {
+  for (size_t i = 0; i < element_count; i++) {
       handles[i] = container.add();
   }
 
   CHECK(container.size() == element_count);
 
   bool removed = true;
-  for (int i = element_count - 1; i >= 0; i--) {
+  for (size_t i = element_count - 1; i >= 0; i--) {
       removed &= !!container.remove(handles[i]);
   }
 
   CHECK(removed);
   CHECK(container.size() == 0);
 
-  for (int i = 0; i < element_count; i++) {
+  for (size_t i = 0; i < element_count; i++) {
     CHECK(!container.has(handles[i]));
   }
 }
@@ -150,21 +154,21 @@ TEST_CASE("AddAndRemoveHandlesOrdered") {
   thh::container_t<char> container;
   constexpr const size_t element_count = 10;
   thh::handle_t handles[element_count];
-  for (int i = 0; i < element_count; i++) {
+  for (size_t i = 0; i < element_count; i++) {
       handles[i] = container.add();
   }
 
   CHECK(container.size() == element_count);
 
   bool removed = true;
-  for (int i = 0; i < element_count; i++) {
+  for (size_t i = 0; i < element_count; i++) {
       removed &= !!container.remove(handles[i]);
   }
 
   CHECK(removed);
   CHECK(container.size() == 0);
 
-  for (int i = 0; i < element_count; i++) {
+  for (size_t i = 0; i < element_count; i++) {
     CHECK(!container.has(handles[i]));
   }
 }
@@ -219,7 +223,7 @@ TEST_CASE("OriginalHandleCannotAccessElementAfterRemoval") {
 TEST_CASE("ElementsRemainPackedAfterRemoval") {
   thh::container_t<float> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
   container.remove(handles[2]);
@@ -236,7 +240,7 @@ TEST_CASE("ContainerDebugVisualization")
 {
   thh::container_t<float> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
 
@@ -252,7 +256,7 @@ TEST_CASE("ContainerDebugVisualization")
   char* expected_buffer = new char[buffer_size];
   expected_buffer[0] = '\0';
 
-  for (int i = 0; i < container.capacity(); i++) {
+  for (size_t i = 0; i < container.capacity(); i++) {
     strcat(expected_buffer, "[x]");
   }
 
@@ -268,7 +272,7 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
 {
   thh::container_t<float> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < 5; ++i) {
+  for (size_t i = 0; i < 5; ++i) {
     handles[i] = container.add();
   }
 
@@ -279,11 +283,11 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
   char* expected_buffer = new char[buffer_size];
   expected_buffer[0] = '\0';
 
-  for (int i = 0; i < container.capacity(); i++) {
+  for (size_t i = 0; i < container.capacity(); i++) {
     strcat(expected_buffer, "[x]");
   }
 
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     container.remove(handles[i]);
   }
 
@@ -391,10 +395,10 @@ TEST_CASE("EnumerateImmutableElements") {
 TEST_CASE("HandleResolvesAfterInternalMove") {
   thh::container_t<int> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < 5; ++i) {
+  for (size_t i = 0; i < 5; ++i) {
     handles[i] = container.add();
   }
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     auto* value = container.resolve(handles[i]);
     *value = i + 1;
   }
@@ -418,13 +422,13 @@ TEST_CASE("ElementsCanBeReserved") {
 TEST_CASE("ElementsCanBeReservedAfterFirstUse") {
   thh::container_t<int> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
   
   container.reserve(10);
 
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     CHECK(container.has(handles[i]));
   }
 
@@ -435,14 +439,14 @@ TEST_CASE("ElementsCanBeReservedAfterFirstUse") {
 TEST_CASE("ContainerCanBeCleared") {
   thh::container_t<int> container;
   thh::handle_t handles[10];
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
 
   container.clear();
 
   CHECK(container.size() == 0);
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     CHECK(!container.has(handles[i]));
   }
 }
@@ -450,7 +454,7 @@ TEST_CASE("ContainerCanBeCleared") {
 TEST_CASE("FirstHandleReturnedAfterClear") {
   thh::container_t<int> container;
   thh::handle_t handles[10];
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
 
@@ -464,7 +468,7 @@ TEST_CASE("FirstHandleReturnedAfterClear") {
 TEST_CASE("FirstElementReturnedAfterClear") {
   thh::container_t<int> container;
   thh::handle_t handles[10];
-  for (int i = 0; i < std::size(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
 
@@ -482,7 +486,7 @@ TEST_CASE("ContainerGrowsCorrectlyAfterClear") {
   thh::container_t<int> container;
   const size_t initial_handle_count = 10;
   std::vector<thh::handle_t> handles;
-  for (int i = 0; i < initial_handle_count; ++i) {
+  for (size_t i = 0; i < initial_handle_count; ++i) {
     handles.push_back(container.add());
   }
 
@@ -495,13 +499,13 @@ TEST_CASE("ContainerGrowsCorrectlyAfterClear") {
 
   container.clear();
 
-  for (int i = 0; i < handles.size(); ++i) {
+  for (size_t i = 0; i < handles.size(); ++i) {
     CHECK(!container.has(handles[i]));
   }
 
   handles.clear();
   
-  for (int i = 0; i < grow_size + 1; ++i) {
+  for (size_t i = 0; i < grow_size + 1; ++i) {
     handles.push_back(container.add());
   }
 

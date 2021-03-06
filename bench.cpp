@@ -84,7 +84,7 @@ BENCHMARK(Resolve)
   )
  
   // benchmarking
-  int* element = container.resolve(handle);
+  [[maybe_unused]] int* element = container.resolve(handle);
   
   TEARDOWN_BENCHMARK(
     container.remove(handle);
@@ -106,7 +106,7 @@ BENCHMARK(EnumerateCallback)
   });
 
   TEARDOWN_BENCHMARK(
-    for (int i = 0; i < container.size(); ++i) {
+    for (size_t i = 0; i < container.size(); ++i) {
       container.remove(handles[i]);
     }
   )
@@ -122,13 +122,13 @@ BENCHMARK(EnumerateResolve)
     }
   )
 
-  for (int i = 0; i < container.size(); ++i) {
+  for (size_t i = 0; i < container.size(); ++i) {
     int* element = container.resolve(handles[i]);
     *element = i;
   }
 
   TEARDOWN_BENCHMARK(
-    for (int i = 0; i < container.size(); ++i) {
+    for (size_t i = 0; i < container.size(); ++i) {
       container.remove(handles[i]);
     }
   )

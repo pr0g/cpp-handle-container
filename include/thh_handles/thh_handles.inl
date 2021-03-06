@@ -17,7 +17,7 @@ namespace thh
   template<typename T>
   inline handle_t container_t<T>::add()
   {
-    const int index = elements_.size();
+    const auto index = elements_.size();
     elements_.emplace_back();
     element_ids_.emplace_back();
 
@@ -36,7 +36,8 @@ namespace thh
   template<typename T>
   inline bool container_t<T>::has(const handle_t handle) const
   {
-    if (handle.id_ >= handles_.size()) {
+    assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+    if (handle.id_ >= static_cast<int32_t>(handles_.size())) {
       return false;
     }
 
@@ -54,14 +55,21 @@ namespace thh
     }
 
     const size_t back = element_ids_.size() - 1;
+    // find the handle of the last element currently stored and have it
+    // point to the look-up of the element about to be removed
     handles_[element_ids_[back]].lookup_ = handles_[handle.id_].lookup_;
+    // swap the last element with the element being removed
     std::swap(elements_[handles_[handle.id_].lookup_], elements_[back]);
+    // swap the last element id with the element id being removed
+    // (the element_ and element_ids_ vector have a one to one mapping)
     std::swap(element_ids_[handles_[handle.id_].lookup_], element_ids_[back]);
 
+    // free handle being removed (make ready for reuse)
     handles_[handle.id_].lookup_ = -1;
     handles_[handle.id_].next_ = next_;
     next_ = handle.id_;
 
+    // remove the last element (the element that was removed after the swap)
     element_ids_.pop_back();
     elements_.pop_back();
 
@@ -145,7 +153,7 @@ namespace thh
     } else if (buffer_size < required_buffer_size) {
       return -1;
     } else {
-      for (int i = 0; i < capacity(); i++) {
+      for (size_t i = 0; i < capacity(); i++) {
         const char* glyph = nullptr;
         if (handles_[i].lookup_ == -1) {
             glyph = empty_glyph;
