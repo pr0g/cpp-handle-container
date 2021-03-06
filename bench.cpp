@@ -1,4 +1,3 @@
-// #include "criterion/criterion.hpp"
 #include "thh_handles/thh_handles.hpp"
 
 #include <benchmark/benchmark.h>
@@ -62,7 +61,7 @@ static void Resolve(benchmark::State& state) {
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
   for (auto _ : state) {
-    int* element = container.resolve(handle);
+    [[maybe_unused]] int* element = container.resolve(handle);
     benchmark::DoNotOptimize(element);
     benchmark::ClobberMemory();
   }
@@ -93,7 +92,7 @@ static void EnumerateCallbackResolve(benchmark::State& state) {
     handles.push_back(container.add());
   }
   for (auto _ : state) {
-    for (int i = 0; i < container.size(); ++i) {
+    for (size_t i = 0; i < container.size(); ++i) {
       int* element = container.resolve(handles[i]);
       *element = i;
       benchmark::ClobberMemory();
