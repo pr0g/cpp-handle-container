@@ -4,11 +4,9 @@ namespace thh
   inline void container_t<T>::try_allocate_more_handles()
   {
     if (handles_.size() < elements_.capacity()) {
+      const auto last_handle_size = handles_.size();
       handles_.resize(elements_.capacity());
-
       assert(handles_.size() <= std::numeric_limits<int32_t>::max());
-
-      const auto last_handle_size = static_cast<size_t>(last_handle_size_);
       for (size_t i = last_handle_size; i < handles_.size(); i++) {
         assert(i < std::numeric_limits<int32_t>::max() - 1);
         const auto handle_index = static_cast<int32_t>(i);
@@ -16,7 +14,6 @@ namespace thh
         handles_[i].lookup_ = -1;
         handles_[i].next_ = handle_index + 1;
       }
-      last_handle_size_ = static_cast<int32_t>(handles_.size());
     }
   }
 
@@ -26,16 +23,24 @@ namespace thh
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
 
     const auto index = static_cast<int32_t>(elements_.size());
+    
+    // allocate new element
     elements_.emplace_back();
     element_ids_.emplace_back();
 
+    // if backing store increased, create additional handles for newly available
+    // elements
     try_allocate_more_handles();
 
+    // map handle to newly allocated element
     handles_[next_].lookup_ = index;
+    // increment the generation of the handle
     handle_t* handle = &handles_[next_].handle_;
     handle->gen_++;
 
+    // map the element back to the handle it's bound to
     element_ids_[index] = handle->id_;
+    // update the next available handle
     next_ = handles_[next_].next_;
 
     return *handle;
@@ -54,6 +59,8 @@ namespace thh
       return false;
     }
 
+    // ensure the handle matches the one stored internally and is referencing a
+    // valid element
     const internal_handle_t& ih = handles_[handle.id_];
     return ih.handle_.gen_ == handle.gen_ && ih.lookup_ != -1;
   }
@@ -140,6 +147,8 @@ namespace thh
     elements_.clear();
     element_ids_.clear();
 
+    // reset handles but leave generation untouched (ensures existing external
+    // handles cannot be used again with the container)
     for (size_t i = 0; i < handles_.size(); i++) {
       handles_[i].lookup_ = -1;
       handles_[i].next_ = static_cast<int32_t>(i) + 1;
