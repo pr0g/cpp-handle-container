@@ -5,14 +5,18 @@ namespace thh
   {
     if (handles_.size() < elements_.capacity()) {
       handles_.resize(elements_.capacity());
-      for (size_t i = last_handle_size_; i < handles_.size(); i++) {
+
+      assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+
+      const auto last_handle_size = static_cast<size_t>(last_handle_size_);
+      for (size_t i = last_handle_size; i < handles_.size(); i++) {
         assert(i < std::numeric_limits<int32_t>::max() - 1);
         const auto handle_index = static_cast<int32_t>(i);
         handles_[i].handle_ = handle_t(handle_index, -1);
         handles_[i].lookup_ = -1;
         handles_[i].next_ = handle_index + 1;
       }
-      last_handle_size_ = handles_.size();
+      last_handle_size_ = static_cast<int32_t>(handles_.size());
     }
   }
 
@@ -150,7 +154,7 @@ namespace thh
   }
 
   template<typename T>
-  std::string container_t<T>::debug_handles()
+  std::string container_t<T>::debug_handles() const
   {
     constexpr const char filled_glyph[] = "[o]";
     constexpr const char empty_glyph[] = "[x]";

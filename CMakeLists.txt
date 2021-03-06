@@ -23,7 +23,9 @@ target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} doctest)
 target_compile_options(
   ${PROJECT_NAME}_test
   PRIVATE $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/W4 /WX>
-          $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-Wall -Wextra -pedantic>)
+          $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:
+          -Weverything -Wall -Wextra -pedantic -Wno-c++98-compat;-Wno-
+          -Wno-sign-conversion;-Wno->)
 
 add_executable(${PROJECT_NAME}_bench)
 target_sources(${PROJECT_NAME}_bench PRIVATE bench.cpp)

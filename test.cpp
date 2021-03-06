@@ -319,6 +319,9 @@ TEST_CASE("EnsureResourceCleanedUpAfterRemoval")
 {
   struct resource_t
   {
+    resource_t() = default;
+    resource_t(const resource_t&) = default;
+    resource_t& operator=(const resource_t&) = default;
     ~resource_t() { *resource_ = 42; }
     int* resource_ = nullptr;
   };

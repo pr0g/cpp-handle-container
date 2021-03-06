@@ -30,8 +30,8 @@ namespace thh
     std::vector<int32_t> element_ids_;
     std::vector<internal_handle_t> handles_;
 
+    int32_t last_handle_size_ = 0;
     int32_t next_ = 0;
-    size_t last_handle_size_ = 0;
 
     void try_allocate_more_handles();
 
@@ -49,7 +49,7 @@ namespace thh
     template<typename Fn>
     void enumerate(Fn&& fn);
 
-    std::string debug_handles();
+    std::string debug_handles() const;
   };
 } // namespace thh
 
