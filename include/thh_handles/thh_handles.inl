@@ -6,9 +6,11 @@ namespace thh
     if (handles_.size() < elements_.capacity()) {
       handles_.resize(elements_.capacity());
       for (size_t i = last_handle_size_; i < handles_.size(); i++) {
-        handles_[i].handle_ = handle_t(i, -1);
+        assert(i < std::numeric_limits<int32_t>::max() - 1);
+        const auto handle_index = static_cast<int32_t>(i);
+        handles_[i].handle_ = handle_t(handle_index, -1);
         handles_[i].lookup_ = -1;
-        handles_[i].next_ = i + 1;
+        handles_[i].next_ = handle_index + 1;
       }
       last_handle_size_ = handles_.size();
     }
@@ -17,7 +19,9 @@ namespace thh
   template<typename T>
   inline handle_t container_t<T>::add()
   {
-    const auto index = elements_.size();
+    assert(elements_.size() <= std::numeric_limits<int32_t>::max());
+
+    const auto index = static_cast<int32_t>(elements_.size());
     elements_.emplace_back();
     element_ids_.emplace_back();
 
@@ -27,7 +31,7 @@ namespace thh
     handle_t* handle = &handles_[next_].handle_;
     handle->gen_++;
 
-    element_ids_[next_] = handle->id_;
+    element_ids_[index] = handle->id_;
     next_ = handles_[next_].next_;
 
     return *handle;
@@ -37,7 +41,12 @@ namespace thh
   inline bool container_t<T>::has(const handle_t handle) const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+
     if (handle.id_ >= static_cast<int32_t>(handles_.size())) {
+      return false;
+    }
+
+    if (handle.id_ == -1) {
       return false;
     }
 
@@ -118,12 +127,14 @@ namespace thh
   template<typename T>
   void container_t<T>::clear()
   {
+    assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+
     elements_.clear();
     element_ids_.clear();
 
     for (size_t i = 0; i < handles_.size(); i++) {
       handles_[i].lookup_ = -1;
-      handles_[i].next_ = i + 1;
+      handles_[i].next_ = static_cast<int32_t>(i) + 1;
     }
 
     next_ = 0;
@@ -139,19 +150,24 @@ namespace thh
   }
 
   template<typename T>
-  int container_t<T>::debug_handles(char buffer[], int buffer_size /*=0*/)
+  int32_t container_t<T>::debug_handles(
+    char buffer[], const int32_t buffer_size /*=0*/)
   {
     const char* filled_glyph = "[o]";
     const char* empty_glyph = "[x]";
 
-    const int filled_glyph_len = strlen(filled_glyph);
-    const int empty_glyph_len = strlen(empty_glyph);
-    const int required_buffer_size =
+    const size_t filled_glyph_len = strlen(filled_glyph);
+    const size_t empty_glyph_len = strlen(empty_glyph);
+    const size_t required_buffer_size =
       capacity() * std::max(filled_glyph_len, empty_glyph_len) + 1;
 
+    assert(required_buffer_size <= std::numeric_limits<int32_t>::max());
+    const auto signed_required_buffer_size =
+      static_cast<int32_t>(required_buffer_size);
+
     if (buffer == nullptr) {
-      return required_buffer_size;
-    } else if (buffer_size < required_buffer_size) {
+      return signed_required_buffer_size;
+    } else if (buffer_size < signed_required_buffer_size) {
       return -1;
     } else {
       for (size_t i = 0; i < capacity(); i++) {
@@ -161,7 +177,7 @@ namespace thh
         } else {
           glyph = filled_glyph;
         }
-        strcat(buffer, glyph);
+        strcat_s(buffer, buffer_size, glyph);
       }
       return 0;
     }

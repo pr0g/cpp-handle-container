@@ -2,7 +2,8 @@
 
 #include <benchmark/benchmark.h>
 
-static void AddElement(benchmark::State& state) {
+static void AddElement(benchmark::State& state)
+{
   thh::container_t<int> container;
   for (auto _ : state) {
     const thh::handle_t handle = container.add();
@@ -13,7 +14,8 @@ static void AddElement(benchmark::State& state) {
 
 BENCHMARK(AddElement);
 
-static void AddElementWithReserve(benchmark::State& state) {
+static void AddElementWithReserve(benchmark::State& state)
+{
   thh::container_t<int> container;
   container.reserve(8);
   for (auto _ : state) {
@@ -25,7 +27,8 @@ static void AddElementWithReserve(benchmark::State& state) {
 
 BENCHMARK(AddElementWithReserve);
 
-static void RemoveElement(benchmark::State& state) {
+static void RemoveElement(benchmark::State& state)
+{
   thh::container_t<int> container;
   const thh::handle_t handle = container.add();
   for (auto _ : state) {
@@ -36,7 +39,8 @@ static void RemoveElement(benchmark::State& state) {
 
 BENCHMARK(RemoveElement);
 
-static void HasElementPresent(benchmark::State& state) {
+static void HasElementPresent(benchmark::State& state)
+{
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
   for (auto _ : state) {
@@ -46,7 +50,8 @@ static void HasElementPresent(benchmark::State& state) {
 
 BENCHMARK(HasElementPresent);
 
-static void HasElementNotPresent(benchmark::State& state) {
+static void HasElementNotPresent(benchmark::State& state)
+{
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
   container.remove(handle);
@@ -57,7 +62,8 @@ static void HasElementNotPresent(benchmark::State& state) {
 
 BENCHMARK(HasElementNotPresent);
 
-static void Resolve(benchmark::State& state) {
+static void Resolve(benchmark::State& state)
+{
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
   for (auto _ : state) {
@@ -69,7 +75,8 @@ static void Resolve(benchmark::State& state) {
 
 BENCHMARK(Resolve);
 
-static void EnumerateCallback(benchmark::State& state) {
+static void EnumerateCallback(benchmark::State& state)
+{
   thh::container_t<int> container;
   std::vector<thh::handle_t> handles;
   for (int i = 0; i < 10; ++i) {
@@ -85,7 +92,8 @@ static void EnumerateCallback(benchmark::State& state) {
 
 BENCHMARK(EnumerateCallback);
 
-static void EnumerateCallbackResolve(benchmark::State& state) {
+static void EnumerateCallbackResolve(benchmark::State& state)
+{
   thh::container_t<int> container;
   std::vector<thh::handle_t> handles;
   for (int i = 0; i < 10; ++i) {
@@ -94,7 +102,7 @@ static void EnumerateCallbackResolve(benchmark::State& state) {
   for (auto _ : state) {
     for (size_t i = 0; i < container.size(); ++i) {
       int* element = container.resolve(handles[i]);
-      *element = i;
+      *element = static_cast<int>(i);
       benchmark::ClobberMemory();
     }
   }
