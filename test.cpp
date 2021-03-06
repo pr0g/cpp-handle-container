@@ -528,3 +528,26 @@ TEST_CASE("ContainerGrowsCorrectlyAfterClear")
   CHECK(next_handle.id_ == 5);
   CHECK(next_handle.gen_ == 2);
 }
+
+TEST_CASE("HoldMoveOnlyType")
+{
+  struct resource_t
+  {
+    resource_t() = default;
+    resource_t(resource_t&&) = default;
+    resource_t& operator=(resource_t&&) = default;
+  };
+
+  thh::container_t<resource_t> container;
+  std::vector<thh::handle_t> handles;
+  const size_t initial_handle_count = 10;
+  for (size_t i = 0; i < initial_handle_count; ++i) {
+    handles.push_back(container.add());
+  }
+
+  for (size_t i = 0; i < handles.size(); ++i) {
+    container.remove(handles[i]);
+  };
+
+  CHECK(container.size() == 0);
+}
