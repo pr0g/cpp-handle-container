@@ -5,7 +5,7 @@ namespace thh
   {
     if (handles_.size() < elements_.capacity()) {
       handles_.resize(elements_.capacity());
-      for (size_t i = last_handle_size_; i < handles_.size(); ++i) {
+      for (size_t i = last_handle_size_; i < handles_.size(); i++) {
         handles_[i].handle_ = handle_t(i, -1);
         handles_[i].lookup_ = -1;
         handles_[i].next_ = i + 1;
@@ -113,7 +113,7 @@ namespace thh
     elements_.clear();
     element_ids_.clear();
 
-    for (size_t i = 0; i < handles_.size(); ++i) {
+    for (size_t i = 0; i < handles_.size(); i++) {
       handles_[i].lookup_ = -1;
       handles_[i].next_ = i + 1;
     }
