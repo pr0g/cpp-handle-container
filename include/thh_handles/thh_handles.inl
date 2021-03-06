@@ -90,16 +90,18 @@ namespace thh
   }
 
   template<typename T>
-  inline size_t container_t<T>::size() const
+  inline int32_t container_t<T>::size() const
   {
     assert(element_ids_.size() == elements_.size());
-    return elements_.size();
+    assert(elements_.size() <= std::numeric_limits<int32_t>::max());
+    return static_cast<int32_t>(elements_.size());
   }
 
   template<typename T>
-  size_t container_t<T>::capacity() const
+  int32_t container_t<T>::capacity() const
   {
-    return handles_.size();
+    assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+    return static_cast<int32_t>(handles_.size());
   }
 
   template<typename T>
@@ -120,8 +122,10 @@ namespace thh
   }
 
   template<typename T>
-  void container_t<T>::reserve(const size_t capacity)
+  void container_t<T>::reserve(const int32_t capacity)
   {
+    assert(capacity > 0);
+
     elements_.reserve(capacity);
     element_ids_.reserve(capacity);
 

@@ -41,9 +41,9 @@ namespace thh
     bool has(handle_t handle) const;
     const T* resolve(handle_t handle) const;
     T* resolve(handle_t handle);
-    size_t size() const;
-    size_t capacity() const;
-    void reserve(size_t capacity);
+    int32_t size() const;
+    int32_t capacity() const;
+    void reserve(int32_t capacity);
     void clear();
 
     template<typename Fn>
