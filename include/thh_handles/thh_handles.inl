@@ -164,7 +164,7 @@ namespace thh
     constexpr const char empty_glyph[] = "[x]";
 
     std::string buffer;
-    for (size_t i = 0; i < capacity(); i++) {
+    for (int32_t i = 0; i < capacity(); i++) {
       const char* glyph = nullptr;
       if (handles_[i].lookup_ == -1) {
         glyph = empty_glyph;

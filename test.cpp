@@ -286,7 +286,7 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
   }
 
   std::string expected_buffer;
-  for (size_t i = 0; i < container.capacity(); i++) {
+  for (int32_t i = 0; i < container.capacity(); i++) {
     expected_buffer.append("[x]");
   }
 
