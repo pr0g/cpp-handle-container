@@ -243,11 +243,11 @@ TEST_CASE("ContainerDebugVisualization")
   container.remove(handles[2]);
   container.remove(handles[0]);
 
-  const int buffer_size = container.debug_handles(0, nullptr);
+  const int buffer_size = container.debug_handles(nullptr);
   char* buffer = new char[buffer_size];
   buffer[0] = '\0';
 
-  container.debug_handles(buffer_size, buffer);
+  container.debug_handles(buffer, buffer_size);
   
   char* expected_buffer = new char[buffer_size];
   expected_buffer[0] = '\0';
@@ -272,7 +272,7 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
     handles[i] = container.add();
   }
 
-  const int buffer_size = container.debug_handles(0, nullptr);
+  const int buffer_size = container.debug_handles(nullptr);
   char* buffer = new char[buffer_size];
   buffer[0] = '\0';
 
@@ -287,19 +287,19 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
     container.remove(handles[i]);
   }
 
-  container.debug_handles(buffer_size, buffer);
+  container.debug_handles(buffer, buffer_size);
   
   CHECK(strcmp(expected_buffer, buffer) == 0);
 
   thh::handle_t first_new_handle = container.add();
   buffer[0] = '\0';
-  container.debug_handles(buffer_size, buffer);
+  container.debug_handles(buffer, buffer_size);
   memcpy(expected_buffer, "[x][x][x][x][o]", 15);
   CHECK(strcmp(expected_buffer, buffer) == 0);
 
   thh::handle_t second_new_handle = container.add();
   buffer[0] = '\0';
-  container.debug_handles(buffer_size, buffer);
+  container.debug_handles(buffer, buffer_size);
   memcpy(expected_buffer, "[x][x][x][o][o]", 15);
   CHECK(strcmp(expected_buffer, buffer) == 0);
 

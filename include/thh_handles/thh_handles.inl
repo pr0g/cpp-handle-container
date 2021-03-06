@@ -131,7 +131,7 @@ namespace thh
   }
 
   template<typename T>
-  int container_t<T>::debug_handles(int buffer_size, char buffer[]) {
+  int container_t<T>::debug_handles(char buffer[], int buffer_size /*=0*/) {
     const char* filled_glyph = "[o]";
     const char* empty_glyph = "[x]";
 

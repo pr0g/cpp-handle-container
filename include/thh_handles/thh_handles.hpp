@@ -49,7 +49,7 @@ namespace thh
     template<typename Fn>
     void enumerate(Fn&& fn);
 
-    int debug_handles(int buffer_size, char buffer[]);
+    int debug_handles(char buffer[], int buffer_size = 0);
   };
 } // namespace thh
 
