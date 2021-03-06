@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace thh
 {
