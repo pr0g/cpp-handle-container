@@ -44,6 +44,7 @@ namespace thh
     size_t size() const;
     size_t capacity() const;
     void reserve(size_t capacity);
+    void clear();
 
     template<typename Fn>
     void enumerate(Fn&& fn);

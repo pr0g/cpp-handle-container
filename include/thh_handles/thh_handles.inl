@@ -71,6 +71,7 @@ namespace thh
   template<typename T>
   inline size_t container_t<T>::size() const
   {
+    assert(element_ids_.size() == elements_.size());
     return elements_.size();
   }
 
@@ -104,6 +105,20 @@ namespace thh
     element_ids_.reserve(capacity);
     
     try_allocate_more_handles();
+  }
+
+  template<typename T>
+  void container_t<T>::clear()
+  {
+    elements_.clear();
+    element_ids_.clear();
+
+    for (size_t i = 0; i < handles_.size(); ++i) {
+      handles_[i].lookup_ = -1;
+      handles_[i].next_ = i + 1;
+    }
+
+    next_ = 0;
   }
 
   template<typename T>

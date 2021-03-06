@@ -219,7 +219,7 @@ TEST_CASE("OriginalHandleCannotAccessElementAfterRemoval") {
 TEST_CASE("ElementsRemainPackedAfterRemoval") {
   thh::container_t<float> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
   container.remove(handles[2]);
@@ -236,14 +236,14 @@ TEST_CASE("ContainerDebugVisualization")
 {
   thh::container_t<float> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
 
   container.remove(handles[2]);
   container.remove(handles[0]);
 
-  int buffer_size = container.debug_handles(0, nullptr);
+  const int buffer_size = container.debug_handles(0, nullptr);
   char* buffer = new char[buffer_size];
   buffer[0] = '\0';
 
@@ -272,7 +272,7 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
     handles[i] = container.add();
   }
 
-  int buffer_size = container.debug_handles(0, nullptr);
+  const int buffer_size = container.debug_handles(0, nullptr);
   char* buffer = new char[buffer_size];
   buffer[0] = '\0';
 
@@ -283,7 +283,7 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
     strcat(expected_buffer, "[x]");
   }
 
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < std::size(handles); ++i) {
     container.remove(handles[i]);
   }
 
@@ -345,9 +345,10 @@ TEST_CASE("EnumerateMutableElements") {
     int y = 0;
   };
 
+  const auto entity_handle_count = 10;
   thh::container_t<entity_t> entities;
   std::vector<thh::handle_t> entity_handles;
-  for (size_t i = 0; i < 10; ++i) {
+  for (size_t i = 0; i < entity_handle_count; ++i) {
     entity_handles.push_back(entities.add());
   }
 
@@ -356,6 +357,7 @@ TEST_CASE("EnumerateMutableElements") {
     entity.y += 2;
   });
 
+  CHECK(entity_handles.size() == entity_handle_count);
   for (const auto& entity_handle : entity_handles) {
     const auto* entity = entities.resolve(entity_handle);
     CHECK(entity->x == 1);
@@ -392,7 +394,7 @@ TEST_CASE("HandleResolvesAfterInternalMove") {
   for (int i = 0; i < 5; ++i) {
     handles[i] = container.add();
   }
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < std::size(handles); ++i) {
     auto* value = container.resolve(handles[i]);
     *value = i + 1;
   }
@@ -416,16 +418,100 @@ TEST_CASE("ElementsCanBeReserved") {
 TEST_CASE("ElementsCanBeReservedAfterFirstUse") {
   thh::container_t<int> container;
   thh::handle_t handles[5];
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < std::size(handles); ++i) {
     handles[i] = container.add();
   }
   
   container.reserve(10);
 
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < std::size(handles); ++i) {
     CHECK(container.has(handles[i]));
   }
 
   CHECK(container.size() == 5);
   CHECK(container.capacity() == 10);
+}
+
+TEST_CASE("ContainerCanBeCleared") {
+  thh::container_t<int> container;
+  thh::handle_t handles[10];
+  for (int i = 0; i < std::size(handles); ++i) {
+    handles[i] = container.add();
+  }
+
+  container.clear();
+
+  CHECK(container.size() == 0);
+  for (int i = 0; i < std::size(handles); ++i) {
+    CHECK(!container.has(handles[i]));
+  }
+}
+
+TEST_CASE("FirstHandleReturnedAfterClear") {
+  thh::container_t<int> container;
+  thh::handle_t handles[10];
+  for (int i = 0; i < std::size(handles); ++i) {
+    handles[i] = container.add();
+  }
+
+  container.clear();
+
+  thh::handle_t next_handle = container.add();
+  CHECK(next_handle.id_ == 0);
+  CHECK(next_handle.gen_ == 1);
+}
+
+TEST_CASE("FirstElementReturnedAfterClear") {
+  thh::container_t<int> container;
+  thh::handle_t handles[10];
+  for (int i = 0; i < std::size(handles); ++i) {
+    handles[i] = container.add();
+  }
+
+  void* begin = container.resolve(handles[0]);
+
+  container.clear();
+
+  thh::handle_t next_handle = container.add();
+  void* element = container.resolve(next_handle);
+
+  CHECK(begin == element);
+}
+
+TEST_CASE("ContainerGrowsCorrectlyAfterClear") {
+  thh::container_t<int> container;
+  const size_t initial_handle_count = 10;
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < initial_handle_count; ++i) {
+    handles.push_back(container.add());
+  }
+
+  const auto capacity_before_clear = container.capacity();
+  CHECK(capacity_before_clear == 16);
+
+  const auto difference_required_for_grow =
+    capacity_before_clear - container.size();
+  const auto grow_size = handles.size() + difference_required_for_grow;
+
+  container.clear();
+
+  for (int i = 0; i < handles.size(); ++i) {
+    CHECK(!container.has(handles[i]));
+  }
+
+  handles.clear();
+  
+  for (int i = 0; i < grow_size + 1; ++i) {
+    handles.push_back(container.add());
+  }
+
+  const thh::handle_t another_handle = container.add();
+  CHECK(another_handle.id_ == 17);
+  CHECK(another_handle.gen_ == 0);
+
+  container.remove(handles[5]);
+
+  const thh::handle_t next_handle = container.add();
+  CHECK(next_handle.id_ == 5);
+  CHECK(next_handle.gen_ == 2);
 }
