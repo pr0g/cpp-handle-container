@@ -61,7 +61,7 @@ namespace thh
     [[nodiscard]] const T* resolve(handle_t handle) const;
     // returns a mutable pointer to the underlying element T referenced by the
     // handle
-    T* resolve(handle_t handle);
+    [[nodiscard]] T* resolve(handle_t handle);
     // returns the number of elements currently allocated by the container
     [[nodiscard]] int32_t size() const;
     // returns the number of available handles (includes element storage that is
