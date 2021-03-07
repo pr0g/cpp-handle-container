@@ -8,7 +8,9 @@
 namespace thh
 {
   // default tag to circumvent type safety
-  struct default_tag_t {};
+  struct default_tag_t
+  {
+  };
 
   // weak handle to underlying data stored in the container
   // note: fields should not be modified

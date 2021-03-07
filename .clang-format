@@ -14,6 +14,7 @@ BraceWrapping:
     AfterEnum: true
     AfterFunction: true
     SplitEmptyFunction: true
+    SplitEmptyRecord: true
 ColumnLimit: 80
 IndentWidth: 2
 ContinuationIndentWidth: 2
