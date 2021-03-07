@@ -4,6 +4,8 @@
 
 Following on from [c-handle-container](https://github.com/pr0g/c-handle-container), this library builds on the same ideas but supports a dynamic number of elements without a fixed capacity and is templated so arbitrary types can stored.
 
+> _Note: This is an early draft, proof-of-concept experiment. There's probably bugs, oversights and problems I haven't yet thought of/ran into. Please treat as a reference implementation. YMMV_ 🙂
+
 Excellent resources on the subject:
 
 - [Managing Decoupling Part 4 -- The ID Lookup Table](http://bitsquid.blogspot.com/2011/09/managing-decoupling-part-4-id-lookup.html) - Niklas Gray ([Twitter](https://twitter.com/niklasfrykholm), [GitHub](https://github.com/niklas-ourmachinery))
@@ -12,6 +14,35 @@ Excellent resources on the subject:
 
 ## Building
 
-To build tests and benchmarks pass `-DTHH_HANDLE_ENABLE_TEST` and `-DTHH_HANDLE_ENABLE_BENCH`.
+To build tests and benchmarks pass `-DTHH_HANDLE_ENABLE_TEST` and `-DTHH_HANDLE_ENABLE_BENCH` to CMake.
 
-Note: `-DBENCHMARK_ENABLE_TESTING=OFF` is passed to CMake at configure time to ensure the Google Test dependency on Google Benchmark is not required.
+```bash
+cmake -B build -DTHH_HANDLE_ENABLE_TEST=ON -DTHH_HANDLE_ENABLE_BENCH=ON
+```
+
+> Note: Depending on the generator, use `-DCMAKE_BUILD_TYPE=Release` for the benchmarks (or build with `--config Release` if using a multi-config generator).
+
+Note: `-DBENCHMARK_ENABLE_TESTING=OFF` is passed to CMake at configure time to ensure the Google Test dependency on Google Benchmark is not required (already set inside `CMakeLists.txt`).
+
+## Usage
+
+Either drop the `thh_handles` inside `include/` into your project (and then just `#include "thh_handles/thh_handles.hpp"`) or use CMake's `FetchContent` command.
+
+e.g.
+
+```cmake
+# CMakeLists.txt
+include(FetchContent)
+FetchContent_Declare(
+  thh_handles
+  GIT_REPOSITORY https://github.com/pr0g/cpp-handle-container.git
+  GIT_TAG        <latest-commit>)
+FetchContent_MakeAvailable(thh_handles)
+...
+target_link_libraries(<your-project> <PRIVATE/PUBLIC> thh_handles)
+```
+
+```c++
+// .h/cpp file
+#include "thh_handles/thh_handles.hpp"
+```
