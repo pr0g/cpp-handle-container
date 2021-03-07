@@ -2,87 +2,88 @@
 
 #include <benchmark/benchmark.h>
 
-static void AddElement(benchmark::State& state)
+static void add_element(benchmark::State& state)
 {
   thh::container_t<int> container;
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     const thh::handle_t handle = container.add();
     benchmark::DoNotOptimize(handle);
     benchmark::ClobberMemory();
   }
 }
 
-BENCHMARK(AddElement);
+BENCHMARK(add_element);
 
-static void AddElementWithReserve(benchmark::State& state)
+static void add_element_with_reserve(benchmark::State& state)
 {
   thh::container_t<int> container;
   container.reserve(8);
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     const thh::handle_t handle = container.add();
     benchmark::DoNotOptimize(handle);
     benchmark::ClobberMemory();
   }
 }
 
-BENCHMARK(AddElementWithReserve);
+BENCHMARK(add_element_with_reserve);
 
-static void RemoveElement(benchmark::State& state)
+static void remove_element(benchmark::State& state)
 {
   thh::container_t<int> container;
   const thh::handle_t handle = container.add();
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     container.remove(handle);
     benchmark::ClobberMemory();
   }
 }
 
-BENCHMARK(RemoveElement);
+BENCHMARK(remove_element);
 
-static void HasElementPresent(benchmark::State& state)
+static void has_element_present(benchmark::State& state)
 {
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     benchmark::DoNotOptimize(container.has(handle));
   }
 }
 
-BENCHMARK(HasElementPresent);
+BENCHMARK(has_element_present);
 
-static void HasElementNotPresent(benchmark::State& state)
+static void has_element_not_present(benchmark::State& state)
 {
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
   container.remove(handle);
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     benchmark::DoNotOptimize(container.has(handle));
   }
 }
 
-BENCHMARK(HasElementNotPresent);
+BENCHMARK(has_element_not_present);
 
-static void Resolve(benchmark::State& state)
+static void resolve(benchmark::State& state)
 {
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     [[maybe_unused]] int* element = container.resolve(handle);
     benchmark::DoNotOptimize(element);
     benchmark::ClobberMemory();
   }
 }
 
-BENCHMARK(Resolve);
+BENCHMARK(resolve);
 
-static void EnumerateCallback(benchmark::State& state)
+static void enumerate_callback(benchmark::State& state)
 {
   thh::container_t<int> container;
   std::vector<thh::handle_t> handles;
+  handles.reserve(10);
   for (int i = 0; i < 10; ++i) {
     handles.push_back(container.add());
   }
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     container.enumerate([i = 0](auto& element) mutable {
       element = i++;
       benchmark::ClobberMemory();
@@ -90,16 +91,17 @@ static void EnumerateCallback(benchmark::State& state)
   }
 }
 
-BENCHMARK(EnumerateCallback);
+BENCHMARK(enumerate_callback);
 
-static void EnumerateCallbackResolve(benchmark::State& state)
+static void enumerate_callback_resolve(benchmark::State& state)
 {
   thh::container_t<int> container;
   std::vector<thh::handle_t> handles;
+  handles.reserve(10);
   for (int i = 0; i < 10; ++i) {
     handles.push_back(container.add());
   }
-  for (auto _ : state) {
+  for ([[maybe_unused]] auto _ : state) {
     for (int64_t i = 0; i < container.size(); ++i) {
       int* element = container.resolve(handles[i]);
       *element = static_cast<int>(i);
@@ -108,6 +110,6 @@ static void EnumerateCallbackResolve(benchmark::State& state)
   }
 }
 
-BENCHMARK(EnumerateCallbackResolve);
+BENCHMARK(enumerate_callback_resolve);
 
 BENCHMARK_MAIN();

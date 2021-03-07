@@ -55,18 +55,18 @@ namespace thh
     // invalid)
     bool remove(handle_t handle);
     // returns if the container still has the element referenced by the handle
-    bool has(handle_t handle) const;
+    [[nodiscard]] bool has(handle_t handle) const;
     // returns a constant pointer to the underlying element T referenced by the
     // handle
-    const T* resolve(handle_t handle) const;
+    [[nodiscard]] const T* resolve(handle_t handle) const;
     // returns a mutable pointer to the underlying element T referenced by the
     // handle
     T* resolve(handle_t handle);
     // returns the number of elements currently allocated by the container
-    int32_t size() const;
+    [[nodiscard]] int32_t size() const;
     // returns the number of available handles (includes element storage that is
     // reserved but not yet in use)
-    int32_t capacity() const;
+    [[nodiscard]] int32_t capacity() const;
     // reserves underlying memory for the number of elements specified
     void reserve(int32_t capacity);
     // removes all elements and invalidates all handles
@@ -78,7 +78,7 @@ namespace thh
     void enumerate(Fn&& fn);
     // return an ascii representation of the currently allocated handles
     // note: useful for debugging purposes
-    std::string debug_handles() const;
+    [[nodiscard]] std::string debug_handles() const;
   };
 } // namespace thh
 
