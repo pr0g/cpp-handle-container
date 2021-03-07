@@ -552,3 +552,22 @@ TEST_CASE("HoldMoveOnlyType")
 
   CHECK(container.size() == 0);
 }
+
+TEST_CASE("TaggedHandle")
+{
+  thh::container_t<float> float_container;
+  thh::container_t<float, struct height_tag_t> height_container;
+  thh::container_t<float, struct width_tag_t> width_container;
+
+  // thh::typed_handle_t<struct width_tag_t>
+  [[maybe_unused]] const auto width_handle = width_container.add();
+  // thh::typed_handle_t<struct height_tag_t>
+  [[maybe_unused]] const auto height_handle = height_container.add();
+  [[maybe_unused]] const thh::handle_t float_handle = float_container.add();
+
+  // does not compile
+  // float* width_1 = width_container.resolve(height_handle);
+  // float* width_2 = width_container.resolve(float_handle);
+
+  [[maybe_unused]] float* width = width_container.resolve(width_handle);
+}

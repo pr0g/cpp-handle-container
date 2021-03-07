@@ -7,27 +7,33 @@
 
 namespace thh
 {
+  // default tag to circumvent type safety
+  struct default_tag_t {};
+
   // weak handle to underlying data stored in the container
   // note: fields should not be modified
-  struct handle_t
+  template<typename Tag>
+  struct typed_handle_t
   {
     int32_t id_ = -1;
     int32_t gen_ = -1;
 
-    handle_t() = default;
-    handle_t(const int32_t id, const int32_t gen) : id_(id), gen_(gen) {}
+    typed_handle_t() = default;
+    typed_handle_t(const int32_t id, const int32_t gen) : id_(id), gen_(gen) {}
   };
 
+  using handle_t = typed_handle_t<default_tag_t>;
+
   // storage for type T that is created in-place
-  // may be accessed by resolving the returned handle_t from add()
-  template<typename T>
+  // may be accessed by resolving the returned typed_handle_t from add()
+  template<typename T, typename Tag = default_tag_t>
   class container_t
   {
     // internal mapping from external handle to internal element
     // maintains a reference to the next free handle
     struct internal_handle_t
     {
-      handle_t handle_;
+      typed_handle_t<Tag> handle_;
       int32_t lookup_ = -1;
       int32_t next_ = -1;
     };
@@ -49,19 +55,19 @@ namespace thh
 
   public:
     // creates an element T in-place and returns a handle to it
-    handle_t add();
+    typed_handle_t<Tag> add();
     // removes the element referenced by the handle
     // returns true if the elements was removed, false otherwise (the handle was
     // invalid)
-    bool remove(handle_t handle);
+    bool remove(typed_handle_t<Tag> handle);
     // returns if the container still has the element referenced by the handle
-    [[nodiscard]] bool has(handle_t handle) const;
+    [[nodiscard]] bool has(typed_handle_t<Tag> handle) const;
     // returns a constant pointer to the underlying element T referenced by the
     // handle
-    [[nodiscard]] const T* resolve(handle_t handle) const;
+    [[nodiscard]] const T* resolve(typed_handle_t<Tag> handle) const;
     // returns a mutable pointer to the underlying element T referenced by the
     // handle
-    [[nodiscard]] T* resolve(handle_t handle);
+    [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);
     // returns the number of elements currently allocated by the container
     [[nodiscard]] int32_t size() const;
     // returns the number of available handles (includes element storage that is

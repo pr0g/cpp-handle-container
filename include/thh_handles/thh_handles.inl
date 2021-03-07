@@ -1,7 +1,7 @@
 namespace thh
 {
-  template<typename T>
-  inline void container_t<T>::try_allocate_more_handles()
+  template<typename T, typename Tag>
+  inline void container_t<T, Tag>::try_allocate_more_handles()
   {
     if (handles_.size() < elements_.capacity()) {
       const auto last_handle_size = handles_.size();
@@ -10,15 +10,15 @@ namespace thh
       for (size_t i = last_handle_size; i < handles_.size(); i++) {
         assert(i < std::numeric_limits<int32_t>::max() - 1);
         const auto handle_index = static_cast<int32_t>(i);
-        handles_[i].handle_ = handle_t(handle_index, -1);
+        handles_[i].handle_ = typed_handle_t<Tag>(handle_index, -1);
         handles_[i].lookup_ = -1;
         handles_[i].next_ = handle_index + 1;
       }
     }
   }
 
-  template<typename T>
-  inline handle_t container_t<T>::add()
+  template<typename T, typename Tag>
+  inline typed_handle_t<Tag> container_t<T, Tag>::add()
   {
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -35,7 +35,7 @@ namespace thh
     // map handle to newly allocated element
     handles_[next_].lookup_ = index;
     // increment the generation of the handle
-    handle_t* handle = &handles_[next_].handle_;
+    typed_handle_t<Tag>* handle = &handles_[next_].handle_;
     handle->gen_++;
 
     // map the element back to the handle it's bound to
@@ -46,8 +46,8 @@ namespace thh
     return *handle;
   }
 
-  template<typename T>
-  inline bool container_t<T>::has(const handle_t handle) const
+  template<typename T, typename Tag>
+  inline bool container_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -65,8 +65,8 @@ namespace thh
     return ih.handle_.gen_ == handle.gen_ && ih.lookup_ != -1;
   }
 
-  template<typename T>
-  inline bool container_t<T>::remove(const handle_t handle)
+  template<typename T, typename Tag>
+  inline bool container_t<T, Tag>::remove(const typed_handle_t<Tag> handle)
   {
     assert(element_ids_.size() == elements_.size());
 
@@ -96,23 +96,23 @@ namespace thh
     return true;
   }
 
-  template<typename T>
-  inline int32_t container_t<T>::size() const
+  template<typename T, typename Tag>
+  inline int32_t container_t<T, Tag>::size() const
   {
     assert(element_ids_.size() == elements_.size());
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
     return static_cast<int32_t>(elements_.size());
   }
 
-  template<typename T>
-  int32_t container_t<T>::capacity() const
+  template<typename T, typename Tag>
+  int32_t container_t<T, Tag>::capacity() const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
     return static_cast<int32_t>(handles_.size());
   }
 
-  template<typename T>
-  const T* container_t<T>::resolve(const handle_t handle) const
+  template<typename T, typename Tag>
+  const T* container_t<T, Tag>::resolve(const typed_handle_t<Tag> handle) const
   {
     if (!has(handle)) {
       return nullptr;
@@ -121,15 +121,15 @@ namespace thh
     return &elements_[handles_[handle.id_].lookup_];
   }
 
-  template<typename T>
-  T* container_t<T>::resolve(const handle_t handle)
+  template<typename T, typename Tag>
+  T* container_t<T, Tag>::resolve(const typed_handle_t<Tag> handle)
   {
     return const_cast<T*>(
       static_cast<const container_t&>(*this).resolve(handle));
   }
 
-  template<typename T>
-  void container_t<T>::reserve(const int32_t capacity)
+  template<typename T, typename Tag>
+  void container_t<T, Tag>::reserve(const int32_t capacity)
   {
     assert(capacity > 0);
 
@@ -139,8 +139,8 @@ namespace thh
     try_allocate_more_handles();
   }
 
-  template<typename T>
-  void container_t<T>::clear()
+  template<typename T, typename Tag>
+  void container_t<T, Tag>::clear()
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -157,17 +157,17 @@ namespace thh
     next_ = 0;
   }
 
-  template<typename T>
+  template<typename T, typename Tag>
   template<typename Fn>
-  void container_t<T>::enumerate(Fn&& fn)
+  void container_t<T, Tag>::enumerate(Fn&& fn)
   {
     for (auto& element : elements_) {
       fn(element);
     }
   }
 
-  template<typename T>
-  std::string container_t<T>::debug_handles() const
+  template<typename T, typename Tag>
+  std::string container_t<T, Tag>::debug_handles() const
   {
     constexpr const char filled_glyph[] = "[o]";
     constexpr const char empty_glyph[] = "[x]";
