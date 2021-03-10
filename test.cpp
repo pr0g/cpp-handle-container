@@ -559,10 +559,13 @@ TEST_CASE("TaggedHandle")
   thh::container_t<float, struct height_tag_t> height_container;
   thh::container_t<float, struct width_tag_t> width_container;
 
+  using width_handle_t = thh::typed_handle_t<struct width_tag_t>;
+  using height_handle_t = thh::typed_handle_t<struct height_tag_t>;
+
   // thh::typed_handle_t<struct width_tag_t>
-  [[maybe_unused]] const auto width_handle = width_container.add();
+  [[maybe_unused]] const width_handle_t width_handle = width_container.add();
   // thh::typed_handle_t<struct height_tag_t>
-  [[maybe_unused]] const auto height_handle = height_container.add();
+  [[maybe_unused]] const height_handle_t height_handle = height_container.add();
   [[maybe_unused]] const thh::handle_t float_handle = float_container.add();
 
   // note - lines do not compile (type mismatch error)
