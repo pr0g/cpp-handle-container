@@ -602,7 +602,7 @@ TEST_CASE("AddAndResolveInOneStep")
 
   const auto [handle, value] = container.add_and_resolve();
 
-  auto next_value = container.resolve(handle);
+  auto* next_value = container.resolve(handle);
 
   CHECK(value == next_value);
   CHECK(*value == *next_value);
