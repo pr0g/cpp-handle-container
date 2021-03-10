@@ -575,3 +575,23 @@ TEST_CASE("TaggedHandle")
   [[maybe_unused]] float* width = width_container.resolve(width_handle);
   CHECK(width != nullptr);
 }
+
+TEST_CASE("SupportNonDefaultConstructibleType")
+{
+  struct no_default_constructor_t
+  {
+    explicit no_default_constructor_t(int i) : i_(i) {}
+    int i_ = 0;
+  };
+
+  thh::container_t<no_default_constructor_t> container;
+  const auto handle = container.add(4);
+
+  {
+    auto* value = container.resolve(handle);
+    CHECK(value->i_ == 4);
+  }
+
+  container.remove(handle);
+  CHECK(container.resolve(handle) == nullptr);
+}

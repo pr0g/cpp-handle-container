@@ -51,6 +51,8 @@ namespace thh
 
     // index of the next handle to be allocated
     int32_t next_ = 0;
+    // explicit alignment padding variable
+    int32_t padding_unused_ = 0;
 
     // increases the number of availble handles when the underlying container of
     // elements (T) grows (the capacity increases)
@@ -58,7 +60,10 @@ namespace thh
 
   public:
     // creates an element T in-place and returns a handle to it
-    typed_handle_t<Tag> add();
+    // note: args allow arguments to be passed directly to the type constructor
+    // useful if the type does not support a default constructor
+    template<typename... Args>
+    typed_handle_t<Tag> add(Args&&... args);
     // removes the element referenced by the handle
     // returns true if the elements was removed, false otherwise (the handle was
     // invalid)

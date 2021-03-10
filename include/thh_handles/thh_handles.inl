@@ -18,14 +18,15 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  inline typed_handle_t<Tag> container_t<T, Tag>::add()
+  template<typename... Args>
+  inline typed_handle_t<Tag> container_t<T, Tag>::add(Args&& ... args)
   {
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
 
     const auto index = static_cast<int32_t>(elements_.size());
 
     // allocate new element
-    elements_.emplace_back();
+    elements_.emplace_back(std::forward<Args>(args)...);
     element_ids_.emplace_back();
 
     // if backing store increased, create additional handles for newly available
