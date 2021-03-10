@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace thh
@@ -64,6 +65,10 @@ namespace thh
     // useful if the type does not support a default constructor
     template<typename... Args>
     typed_handle_t<Tag> add(Args&&... args);
+    // creates an element T in-place and returns a handle and pointer to it
+    // immediately (convenience function)
+    template<typename... Args>
+    std::pair<typed_handle_t<Tag>, T*> add_and_resolve(Args&&... args);
     // removes the element referenced by the handle
     // returns true if the elements was removed, false otherwise (the handle was
     // invalid)

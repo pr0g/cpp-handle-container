@@ -19,7 +19,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename... Args>
-  inline typed_handle_t<Tag> container_t<T, Tag>::add(Args&& ... args)
+  inline typed_handle_t<Tag> container_t<T, Tag>::add(Args&&... args)
   {
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -45,6 +45,15 @@ namespace thh
     next_ = handles_[next_].next_;
 
     return *handle;
+  }
+
+  template<typename T, typename Tag>
+  template<typename... Args>
+  std::pair<typed_handle_t<Tag>, T*> container_t<T, Tag>::add_and_resolve(
+    Args&&... args)
+  {
+    const auto handle = add(std::forward<Args>(args)...);
+    return std::pair(handle, resolve(handle));
   }
 
   template<typename T, typename Tag>

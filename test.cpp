@@ -595,3 +595,15 @@ TEST_CASE("SupportNonDefaultConstructibleType")
   container.remove(handle);
   CHECK(container.resolve(handle) == nullptr);
 }
+
+TEST_CASE("AddAndResolveInOneStep")
+{
+  thh::container_t<int> container;
+
+  const auto [handle, value] = container.add_and_resolve();
+
+  auto next_value = container.resolve(handle);
+
+  CHECK(value == next_value);
+  CHECK(*value == *next_value);
+}
