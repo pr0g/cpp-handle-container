@@ -565,9 +565,10 @@ TEST_CASE("TaggedHandle")
   [[maybe_unused]] const auto height_handle = height_container.add();
   [[maybe_unused]] const thh::handle_t float_handle = float_container.add();
 
-  // does not compile
+  // note - lines do not compile (type mismatch error)
   // float* width_1 = width_container.resolve(height_handle);
   // float* width_2 = width_container.resolve(float_handle);
 
   [[maybe_unused]] float* width = width_container.resolve(width_handle);
+  CHECK(width != nullptr);
 }
