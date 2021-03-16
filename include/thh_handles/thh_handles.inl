@@ -168,6 +168,18 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  auto container_t<T, Tag>::begin() -> typename decltype(elements_)::iterator
+  {
+    return elements_.begin();
+  }
+
+  template<typename T, typename Tag>
+  auto container_t<T, Tag>::end() -> typename decltype(elements_)::iterator
+  {
+    return elements_.end();
+  }
+
+  template<typename T, typename Tag>
   template<typename Fn>
   void container_t<T, Tag>::enumerate(Fn&& fn)
   {

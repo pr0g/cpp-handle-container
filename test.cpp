@@ -607,3 +607,23 @@ TEST_CASE("AddAndResolveInOneStep")
   CHECK(value == next_value);
   CHECK(*value == *next_value);
 }
+
+TEST_CASE("ValuesAccessedThroughIterators")
+{
+  thh::container_t<int> container;
+  constexpr const size_t element_count = 10;
+  thh::handle_t handles[element_count];
+  for (auto& handle : handles) {
+    handle = container.add();
+  }
+
+  std::for_each(
+    container.begin(), container.end(), [i = 0](auto& elem) mutable {
+      elem = i++;
+  });
+
+  for (size_t i = 0; i < element_count; ++i) {
+    const auto* value = container.resolve(handles[i]);
+    CHECK(*value == i);
+  }
+}

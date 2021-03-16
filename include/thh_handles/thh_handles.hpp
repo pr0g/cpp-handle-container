@@ -91,6 +91,10 @@ namespace thh
     // removes all elements and invalidates all handles
     // note: capacity remains unchanged, internal handles are not cleared
     void clear();
+    //
+    auto begin() -> typename decltype(elements_)::iterator;
+    //
+    auto end() -> typename decltype(elements_)::iterator;
     // enumerate each element stored in the container invoking the provided
     // function
     template<typename Fn>
