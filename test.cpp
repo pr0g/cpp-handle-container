@@ -3,6 +3,8 @@
 
 #include "thh_handles/thh_handles.hpp"
 
+#include <numeric>
+
 TEST_CASE("CanAllocContainer")
 {
   thh::container_t<char> container;
@@ -618,12 +620,52 @@ TEST_CASE("ValuesAccessedThroughIterators")
   }
 
   std::for_each(
-    container.begin(), container.end(), [i = 0](auto& elem) mutable {
-      elem = i++;
-  });
+    container.begin(), container.end(),
+    [i = 0](auto& elem) mutable { elem = i++; });
 
   for (size_t i = 0; i < element_count; ++i) {
     const auto* value = container.resolve(handles[i]);
     CHECK(*value == i);
   }
+}
+
+TEST_CASE("AccumulateWithIterators")
+{
+  thh::container_t<int> container;
+  constexpr const size_t element_count = 10;
+  thh::handle_t handles[element_count];
+  for (auto& handle : handles) {
+    auto [h, v] = container.add_and_resolve();
+    *v = 5;
+    handle = h;
+  }
+
+  const auto total = std::accumulate(
+    container.begin(), container.end(), 0, [](int acc, const auto& value) {
+      acc += value;
+      return acc;
+    });
+
+  CHECK(total == 50);
+}
+
+TEST_CASE("FindWithIterators")
+{
+  thh::container_t<int> container;
+  constexpr const size_t element_count = 10;
+  thh::handle_t handles[element_count];
+
+  for (size_t i = 0; i < element_count; ++i) {
+    auto [h, v] = container.add_and_resolve();
+    *v = static_cast<int>(i);
+    handles[i] = h;
+  }
+
+  const auto found =
+    std::find_if(container.cbegin(), container.cend(), [](const int value) {
+      return value == 8;
+    });
+
+  CHECK(found != container.cend());
+  CHECK(*found == 8);
 }

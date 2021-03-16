@@ -174,9 +174,37 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  auto container_t<T, Tag>::begin() const ->
+    typename decltype(elements_)::const_iterator
+  {
+    return elements_.begin();
+  }
+
+  template<typename T, typename Tag>
+  auto container_t<T, Tag>::cbegin() const ->
+    typename decltype(elements_)::const_iterator
+  {
+    return elements_.cbegin();
+  }
+
+  template<typename T, typename Tag>
   auto container_t<T, Tag>::end() -> typename decltype(elements_)::iterator
   {
     return elements_.end();
+  }
+
+  template<typename T, typename Tag>
+  auto container_t<T, Tag>::end() const ->
+    typename decltype(elements_)::const_iterator
+  {
+    return elements_.end();
+  }
+
+  template<typename T, typename Tag>
+  auto container_t<T, Tag>::cend() const ->
+    typename decltype(elements_)::const_iterator
+  {
+    return elements_.cend();
   }
 
   template<typename T, typename Tag>

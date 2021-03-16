@@ -94,7 +94,15 @@ namespace thh
     //
     auto begin() -> typename decltype(elements_)::iterator;
     //
+    auto begin() const -> typename decltype(elements_)::const_iterator;
+    //
+    auto cbegin() const -> typename decltype(elements_)::const_iterator;
+    //
     auto end() -> typename decltype(elements_)::iterator;
+    //
+    auto end() const -> typename decltype(elements_)::const_iterator;
+    //
+    auto cend() const -> typename decltype(elements_)::const_iterator;
     // enumerate each element stored in the container invoking the provided
     // function
     template<typename Fn>
