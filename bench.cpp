@@ -112,4 +112,23 @@ static void enumerate_callback_resolve(benchmark::State& state)
 
 BENCHMARK(enumerate_callback_resolve);
 
+static void enumerate_iterators(benchmark::State& state)
+{
+  thh::container_t<int> container;
+  std::vector<thh::handle_t> handles;
+  handles.reserve(10);
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(container.add());
+  }
+  for ([[maybe_unused]] auto _ : state) {
+    int i = 0;
+    for (auto& element : container) {
+      element = i++;
+      benchmark::ClobberMemory();
+    }
+  }
+}
+
+BENCHMARK(enumerate_iterators);
+
 BENCHMARK_MAIN();
