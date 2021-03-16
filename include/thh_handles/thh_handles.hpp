@@ -18,8 +18,8 @@ namespace thh
   template<typename Tag>
   struct typed_handle_t
   {
-    int32_t id_ = -1;
-    int32_t gen_ = -1;
+    int32_t id_ = -1; // value to uniquely identify the handle
+    int32_t gen_ = -1; // current handle generation
 
     typed_handle_t() = default;
     typed_handle_t(const int32_t id, const int32_t gen) : id_(id), gen_(gen) {}
@@ -37,9 +37,9 @@ namespace thh
     // maintains a reference to the next free handle
     struct internal_handle_t
     {
-      typed_handle_t<Tag> handle_;
-      int32_t lookup_ = -1;
-      int32_t next_ = -1;
+      typed_handle_t<Tag> handle_; // handle to be looked up
+      int32_t lookup_ = -1; // mapping to element
+      int32_t next_ = -1; // index of next available handle
     };
 
     // backing container for elements (vector remains tightly packed)
@@ -91,17 +91,17 @@ namespace thh
     // removes all elements and invalidates all handles
     // note: capacity remains unchanged, internal handles are not cleared
     void clear();
-    //
+    // returns an iterator to the beginning of the elements
     auto begin() -> typename decltype(elements_)::iterator;
-    //
+    // returns a const iterator to the beginning of the elements
     auto begin() const -> typename decltype(elements_)::const_iterator;
-    //
+    // returns a const iterator to the beginning of the elements
     auto cbegin() const -> typename decltype(elements_)::const_iterator;
-    //
+    // returns an iterator to the end of the elements
     auto end() -> typename decltype(elements_)::iterator;
-    //
+    // returns a const iterator to the end of the elements
     auto end() const -> typename decltype(elements_)::const_iterator;
-    //
+    // returns a const iterator to the end of the elements
     auto cend() const -> typename decltype(elements_)::const_iterator;
     // enumerate each element stored in the container invoking the provided
     // function
