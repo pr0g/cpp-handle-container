@@ -1,7 +1,21 @@
 namespace thh
 {
+  template<typename Tag>
+  bool operator==(
+    const typed_handle_t<Tag>& lhs, const typed_handle_t<Tag>& rhs)
+  {
+    return lhs.gen_ == rhs.gen_ && lhs.id_ == rhs.id_;
+  }
+
+  template<typename Tag>
+  bool operator!=(
+    const typed_handle_t<Tag>& lhs, const typed_handle_t<Tag>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
   template<typename T, typename Tag>
-  inline void container_t<T, Tag>::try_allocate_more_handles()
+  void container_t<T, Tag>::try_allocate_more_handles()
   {
     if (handles_.size() < elements_.capacity()) {
       const auto last_handle_size = handles_.size();
@@ -19,7 +33,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename... Args>
-  inline typed_handle_t<Tag> container_t<T, Tag>::add(Args&&... args)
+  typed_handle_t<Tag> container_t<T, Tag>::add(Args&&... args)
   {
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -57,7 +71,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  inline bool container_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
+  bool container_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -76,7 +90,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  inline bool container_t<T, Tag>::remove(const typed_handle_t<Tag> handle)
+  bool container_t<T, Tag>::remove(const typed_handle_t<Tag> handle)
   {
     assert(element_ids_.size() == elements_.size());
 
@@ -107,7 +121,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  inline int32_t container_t<T, Tag>::size() const
+  int32_t container_t<T, Tag>::size() const
   {
     assert(element_ids_.size() == elements_.size());
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());

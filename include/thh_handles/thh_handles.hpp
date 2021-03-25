@@ -25,6 +25,14 @@ namespace thh
     typed_handle_t(const int32_t id, const int32_t gen) : id_(id), gen_(gen) {}
   };
 
+  // handle equality operators
+  template<typename Tag>
+  bool operator==(
+    const typed_handle_t<Tag>& lhs, const typed_handle_t<Tag>& rhs);
+  template<typename Tag>
+  bool operator!=(
+    const typed_handle_t<Tag>& lhs, const typed_handle_t<Tag>& rhs);
+
   using handle_t = typed_handle_t<default_tag_t>;
 
   // storage for type T that is created in-place
@@ -70,8 +78,8 @@ namespace thh
     template<typename... Args>
     std::pair<typed_handle_t<Tag>, T*> add_and_resolve(Args&&... args);
     // removes the element referenced by the handle
-    // returns true if the elements was removed, false otherwise (the handle was
-    // invalid)
+    // returns true if the element was removed, false otherwise (the handle was
+    // invalid or could not be found in the container)
     bool remove(typed_handle_t<Tag> handle);
     // returns if the container still has the element referenced by the handle
     [[nodiscard]] bool has(typed_handle_t<Tag> handle) const;

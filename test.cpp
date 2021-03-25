@@ -669,3 +669,25 @@ TEST_CASE("FindWithIterators")
   CHECK(found != container.cend());
   CHECK(*found == 8);
 }
+
+TEST_CASE("HandleEqualityCheckPasses")
+{
+  thh::handle_t handle_a{0, 1};
+  thh::handle_t handle_b{0, 1};
+  CHECK(handle_a == handle_b);
+}
+
+TEST_CASE("HandleEqualityCheckFails")
+{
+  {
+    thh::handle_t handle_a{1, 0};
+    thh::handle_t handle_b{0, 0};
+    CHECK(handle_a != handle_b);
+  }
+
+  {
+    thh::handle_t handle_a{2, 1};
+    thh::handle_t handle_b{2, 0};
+    CHECK(handle_a != handle_b);
+  }
+}
