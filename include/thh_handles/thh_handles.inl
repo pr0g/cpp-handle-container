@@ -80,6 +80,16 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  template<typename Fn>
+  void container_t<T, Tag>::call(
+    const typed_handle_t<Tag> handle, Fn&& fn) const
+  {
+    if (const T* element = resolve(handle)) {
+      fn(*element);
+    }
+  }
+
+  template<typename T, typename Tag>
   bool container_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());

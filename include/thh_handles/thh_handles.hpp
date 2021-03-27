@@ -81,6 +81,10 @@ namespace thh
     // the container
     template<typename Fn>
     void call(typed_handle_t<Tag> handle, Fn&& fn);
+    // invokes a callable object (usually a lambda) on a particular element in
+    // the container (const overload)
+    template<typename Fn>
+    void call(typed_handle_t<Tag> handle, Fn&& fn) const;
     // removes the element referenced by the handle
     // returns true if the element was removed, false otherwise (the handle was
     // invalid or could not be found in the container)

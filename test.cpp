@@ -696,9 +696,10 @@ TEST_CASE("InvokeCall")
 {
   struct incrementer_t
   {
-    int counter_ = 0;
-    int post_increment() { return counter_++; }
     int pre_increment() { return ++counter_; }
+    int counter() const { return counter_; }
+  private:
+    int counter_ = 0;
   };
 
   thh::container_t<incrementer_t> container;
@@ -710,4 +711,12 @@ TEST_CASE("InvokeCall")
   });
 
   CHECK(result == 1);
+
+  int next_result = 0;
+  const auto& container_ref = container;
+  container_ref.call(handle, [&next_result](const incrementer_t& incrementer) {
+    next_result = incrementer.counter();
+  });
+
+  CHECK(next_result == 1);
 }
