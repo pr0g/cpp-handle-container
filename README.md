@@ -24,6 +24,14 @@ cmake -B build -DTHH_HANDLE_ENABLE_TEST=ON -DTHH_HANDLE_ENABLE_BENCH=ON
 
 Note: `-DBENCHMARK_ENABLE_TESTING=OFF` is passed to CMake at configure time to ensure the Google Test dependency on Google Benchmark is not required (already set inside `CMakeLists.txt`).
 
+## Gotchas
+
+The `resolve` function (added in the initial version of the library) is easy to use incorrectly due to the fact that if the internal vector has to grow and reallocate, any existing pointers may become invalidated (dangling).
+
+This is unfortunately quite easy to do by mistake. A much better interface which makes this harder to do is to use `call`. This accepts a handle and a callable object (a lambda taking an element as its only parameter) which is resolved internally and called. This makes it much harder to accidentally hold onto a pointer for too long (see the tests for an example).
+
+The `resolve` and `add_and_resolve` functions may be removed from the public interface in future.
+
 ## Usage
 
 Either drop the `thh_handles` inside `include/` into your project (and then just `#include "thh_handles/thh_handles.hpp"`) or use CMake's `FetchContent` command.
