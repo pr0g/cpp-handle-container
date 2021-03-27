@@ -77,6 +77,10 @@ namespace thh
     // immediately (convenience function)
     template<typename... Args>
     std::pair<typed_handle_t<Tag>, T*> add_and_resolve(Args&&... args);
+    // invokes a callable object (usually a lambda) on a particular element in
+    // the container
+    template<typename Fn>
+    void call(typed_handle_t<Tag> handle, Fn&& fn);
     // removes the element referenced by the handle
     // returns true if the element was removed, false otherwise (the handle was
     // invalid or could not be found in the container)

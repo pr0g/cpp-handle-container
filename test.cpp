@@ -691,3 +691,23 @@ TEST_CASE("HandleEqualityCheckFails")
     CHECK(handle_a != handle_b);
   }
 }
+
+TEST_CASE("InvokeCall")
+{
+  struct incrementer_t
+  {
+    int counter_ = 0;
+    int post_increment() { return counter_++; }
+    int pre_increment() { return ++counter_; }
+  };
+
+  thh::container_t<incrementer_t> container;
+  const thh::handle_t handle = container.add();
+
+  int result = 0;
+  container.call(handle, [&result](incrementer_t& incrementer) {
+    result = incrementer.pre_increment();
+  });
+
+  CHECK(result == 1);
+}
