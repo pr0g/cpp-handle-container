@@ -698,6 +698,7 @@ TEST_CASE("InvokeCall")
   {
     int pre_increment() { return ++counter_; }
     int counter() const { return counter_; }
+
   private:
     int counter_ = 0;
   };
@@ -719,4 +720,59 @@ TEST_CASE("InvokeCall")
   });
 
   CHECK(next_result == 1);
+}
+
+TEST_CASE("InvokeCallReturn")
+{
+  class Test
+  {
+  private:
+    Test() = default;
+    int v_ = 5;
+
+  public:
+    static Test make_test() { return Test(); }
+    int v() const { return v_; }
+    void inc() { v_++; }
+  };
+
+  thh::container_t<Test> container;
+  thh::handle_t handle = container.add(Test::make_test());
+
+  auto result = container.call_return(handle, [](Test value) { return value; });
+
+  CHECK(result.value().v() == 5);
+
+  auto next_result = container.call_return(handle, [](Test& value) {
+    value.inc();
+    return value;
+  });
+
+  CHECK(next_result.value().v() == 6);
+
+  const auto& container_ref = container;
+  auto last_result =
+    container_ref.call_return(handle, [](const Test& value) { return value; });
+
+  CHECK(last_result.value().v() == 6);
+}
+
+TEST_CASE("InvokeCallReturnFails")
+{
+  thh::container_t<int> container;
+  thh::handle_t handle = container.add(10);
+
+  auto result = container.call_return(handle, [](int value) { return value; });
+  CHECK(result.value() == 10);
+
+  // called with invalid handle
+  auto next_result =
+    container.call_return(thh::handle_t{}, [](int value) { return value; });
+  CHECK(!next_result.has_value());
+
+  const auto& container_ref = container;
+  auto last_result = container_ref.call_return(
+    thh::handle_t{}, [](const int& value) { return value; });
+
+  CHECK(!last_result.has_value());
 }

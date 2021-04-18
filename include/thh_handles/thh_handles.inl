@@ -90,6 +90,28 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  template<typename Fn>
+  decltype(auto) container_t<T, Tag>::call_return(
+    typed_handle_t<Tag> handle, Fn&& fn)
+  {
+    if (T* element = resolve(handle)) {
+      return std::optional(fn(*element));
+    }
+    return std::optional<decltype(fn(*((T*)nullptr)))>{};
+  }
+
+  template<typename T, typename Tag>
+  template<typename Fn>
+  decltype(auto) container_t<T, Tag>::call_return(
+    typed_handle_t<Tag> handle, Fn&& fn) const
+  {
+    if (const T* element = resolve(handle)) {
+      return std::optional(fn(*element));
+    }
+    return std::optional<decltype(fn(*((const T*)nullptr)))>{};
+  }
+
+  template<typename T, typename Tag>
   bool container_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());

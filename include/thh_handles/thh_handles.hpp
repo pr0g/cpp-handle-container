@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -85,6 +86,18 @@ namespace thh
     // the container (const overload)
     template<typename Fn>
     void call(typed_handle_t<Tag> handle, Fn&& fn) const;
+    // invokes a callable object (usually a lambda) on a particular element in
+    // the container and returns a std::optional containing either the result
+    // or an empty optional (as the handle may not have been successfully
+    // resolved)
+    template<typename Fn>
+    decltype(auto) call_return(typed_handle_t<Tag> handle, Fn&& fn);
+    // invokes a callable object (usually a lambda) on a particular element in
+    // the container and returns a std::optional containing either the result
+    // or an empty optional (as the handle may not have been successfully
+    // resolved) (const overload)
+    template<typename Fn>
+    decltype(auto) call_return(typed_handle_t<Tag> handle, Fn&& fn) const;
     // removes the element referenced by the handle
     // returns true if the element was removed, false otherwise (the handle was
     // invalid or could not be found in the container)
