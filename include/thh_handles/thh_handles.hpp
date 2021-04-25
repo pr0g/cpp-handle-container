@@ -120,6 +120,8 @@ namespace thh
     // removes all elements and invalidates all handles
     // note: capacity remains unchanged, internal handles are not cleared
     void clear();
+    // returns if the container has any elements or not
+    [[nodiscard]] bool empty() const;
     // returns an iterator to the beginning of the elements
     auto begin() -> typename decltype(elements_)::iterator;
     // returns a const iterator to the beginning of the elements

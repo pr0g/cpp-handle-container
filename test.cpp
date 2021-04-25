@@ -776,3 +776,37 @@ TEST_CASE("InvokeCallReturnFails")
 
   CHECK(!last_result.has_value());
 }
+
+TEST_CASE("DefaultContainerIsEmpty")
+{
+  thh::container_t<int> container;
+  CHECK(container.empty());
+}
+
+TEST_CASE("ContainerIsNotEmptyAfterAdd")
+{
+  thh::container_t<int> container;
+  [[maybe_unused]] thh::handle_t handle = container.add(10);
+
+  CHECK(!container.empty());
+}
+
+TEST_CASE("ContainerIsEmptyAfterRemove")
+{
+  thh::container_t<int> container;
+  thh::handle_t handle = container.add(10);
+  container.remove(handle);
+
+  CHECK(container.empty());
+}
+
+TEST_CASE("ConstContainerEmptyCheck")
+{
+  thh::container_t<int> container;
+  container.add();
+
+  container.clear();
+
+  const thh::container_t<int>& const_container = container;
+  CHECK(const_container.empty());
+}

@@ -223,6 +223,13 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  bool container_t<T, Tag>::empty() const
+  {
+    assert(elements_.empty() == element_ids_.empty());
+    return elements_.empty();
+  }
+
+  template<typename T, typename Tag>
   auto container_t<T, Tag>::begin() -> typename decltype(elements_)::iterator
   {
     return elements_.begin();
