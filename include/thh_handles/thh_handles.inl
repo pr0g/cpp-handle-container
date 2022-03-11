@@ -62,15 +62,6 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  template<typename... Args>
-  std::pair<typed_handle_t<Tag>, T*> container_t<T, Tag>::add_and_resolve(
-    Args&&... args)
-  {
-    const auto handle = add(std::forward<Args>(args)...);
-    return std::pair(handle, resolve(handle));
-  }
-
-  template<typename T, typename Tag>
   template<typename Fn>
   void container_t<T, Tag>::call(const typed_handle_t<Tag> handle, Fn&& fn)
   {
@@ -97,7 +88,7 @@ namespace thh
     if (T* element = resolve(handle)) {
       return std::optional(fn(*element));
     }
-    return std::optional<decltype(fn(*((T*)nullptr)))>{};
+    return std::optional<decltype(fn(*(static_cast<T*>(nullptr))))>{};
   }
 
   template<typename T, typename Tag>
@@ -108,7 +99,7 @@ namespace thh
     if (const T* element = resolve(handle)) {
       return std::optional(fn(*element));
     }
-    return std::optional<decltype(fn(*((const T*)nullptr)))>{};
+    return std::optional<decltype(fn(*(static_cast<const T*>(nullptr))))>{};
   }
 
   template<typename T, typename Tag>

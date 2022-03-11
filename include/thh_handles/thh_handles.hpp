@@ -68,16 +68,21 @@ namespace thh
     // elements (T) grows (the capacity increases)
     void try_allocate_more_handles();
 
+    // returns a constant pointer to the underlying element T referenced by the
+    // handle
+    [[nodiscard]] const T* resolve(typed_handle_t<Tag> handle) const;
+    // returns a mutable pointer to the underlying element T referenced by the
+    // handle
+    [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);
+
   public:
+    using iterator = typename std::vector<T>::iterator;
+
     // creates an element T in-place and returns a handle to it
     // note: args allow arguments to be passed directly to the type constructor
     // useful if the type does not support a default constructor
     template<typename... Args>
     typed_handle_t<Tag> add(Args&&... args);
-    // creates an element T in-place and returns a handle and pointer to it
-    // immediately (convenience function)
-    template<typename... Args>
-    std::pair<typed_handle_t<Tag>, T*> add_and_resolve(Args&&... args);
     // invokes a callable object (usually a lambda) on a particular element in
     // the container
     template<typename Fn>
@@ -104,12 +109,6 @@ namespace thh
     bool remove(typed_handle_t<Tag> handle);
     // returns if the container still has the element referenced by the handle
     [[nodiscard]] bool has(typed_handle_t<Tag> handle) const;
-    // returns a constant pointer to the underlying element T referenced by the
-    // handle
-    [[nodiscard]] const T* resolve(typed_handle_t<Tag> handle) const;
-    // returns a mutable pointer to the underlying element T referenced by the
-    // handle
-    [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);
     // returns the number of elements currently allocated by the container
     [[nodiscard]] int32_t size() const;
     // returns the number of available handles (includes element storage that is

@@ -195,7 +195,8 @@ TEST_CASE("CanGetElementViaHandle")
 {
   thh::container_t<char> container;
   thh::handle_t handle = container.add();
-  char* c = container.resolve(handle);
+  const char* c = nullptr;
+  container.call(handle, [&c](const char& value) { c = &value; });
   CHECK(c != nullptr);
 }
 
@@ -211,26 +212,23 @@ TEST_CASE("AddTwoHandlesAndUpdateObjects")
   thh::handle_t handle1 = container.add();
   thh::handle_t handle2 = container.add();
 
-  {
-    test_t* test1 = container.resolve(handle1);
-    test_t* test2 = container.resolve(handle2);
+  container.call(handle1, [](auto& test1) {
+    test1.a_ = 6;
+    test1.b_ = 4;
+  });
+  container.call(handle2, [](auto& test2) {
+    test2.a_ = 4;
+    test2.b_ = 2;
+  });
 
-    test1->a_ = 6;
-    test1->b_ = 4;
-
-    test2->a_ = 4;
-    test2->b_ = 2;
-  }
-
-  {
-    test_t* test1 = container.resolve(handle1);
-    test_t* test2 = container.resolve(handle2);
-
-    CHECK(test1->a_ == 6);
-    CHECK(test1->b_ == 4);
-    CHECK(test2->a_ == 4);
-    CHECK(test2->b_ == 2);
-  }
+  container.call(handle1, [](const auto& test1) {
+    CHECK(test1.a_ == 6);
+    CHECK(test1.b_ == 4);
+  });
+  container.call(handle2, [](const auto& test2) {
+    CHECK(test2.a_ == 4);
+    CHECK(test2.b_ == 2);
+  });
 }
 
 TEST_CASE("OriginalHandleCannotAccessElementAfterRemoval")
@@ -239,7 +237,9 @@ TEST_CASE("OriginalHandleCannotAccessElementAfterRemoval")
   thh::handle_t handle = container.add();
   container.remove(handle);
   CHECK(!container.has(handle));
-  CHECK(container.resolve(handle) == nullptr);
+  CHECK(container.call_return(handle, [](const auto&) {
+    return true;
+  }) == std::nullopt);
 }
 
 TEST_CASE("ElementsRemainPackedAfterRemoval")
@@ -251,9 +251,14 @@ TEST_CASE("ElementsRemainPackedAfterRemoval")
   }
   container.remove(handles[2]);
 
-  float* begin = container.resolve(handles[0]);
-  float* was_end = container.resolve(handles[4]);
-  float* new_end = container.resolve(handles[3]);
+  const float* begin = nullptr;
+  container.call(handles[0], [&begin](const auto& value) { begin = &value; });
+  const float* was_end = nullptr;
+  container.call(
+    handles[4], [&was_end](const auto& value) { was_end = &value; });
+  const float* new_end = nullptr;
+  container.call(
+    handles[3], [&new_end](const auto& value) { new_end = &value; });
 
   CHECK(was_end - begin == 2);
   CHECK(new_end - begin == 3);
@@ -309,8 +314,12 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
   expected_buffer = "[x][x][x][o][o]";
   CHECK(expected_buffer == buffer);
 
-  float* begin = container.resolve(first_new_handle);
-  float* end = container.resolve(second_new_handle);
+  const float* begin = nullptr;
+  container.call(
+    first_new_handle, [&begin](const auto& value) { begin = &value; });
+  const float* end = nullptr;
+  container.call(
+    second_new_handle, [&end](const auto& value) { end = &value; });
 
   // ensure objects are tightly packed
   ptrdiff_t size = end - begin;
@@ -332,11 +341,8 @@ TEST_CASE("EnsureResourceCleanedUpAfterRemoval")
   const auto resource_handle = container.add();
 
   int value = 100;
-
-  {
-    auto* resource = container.resolve(resource_handle);
-    resource->resource_ = &value;
-  }
+  container.call(
+    resource_handle, [&value](auto& resource) { resource.resource_ = &value; });
 
   container.remove(resource_handle);
 
@@ -365,9 +371,10 @@ TEST_CASE("EnumerateMutableElements")
 
   CHECK(entity_handles.size() == entity_handle_count);
   for (const auto& entity_handle : entity_handles) {
-    const auto* entity = entities.resolve(entity_handle);
-    CHECK(entity->x_ == 1);
-    CHECK(entity->y_ == 2);
+    entities.call(entity_handle, [](const entity_t& entity) {
+      CHECK(entity.x_ == 1);
+      CHECK(entity.y_ == 2);
+    });
   }
 }
 
@@ -405,14 +412,18 @@ TEST_CASE("HandleResolvesAfterInternalMove")
     handle = container.add();
   }
   for (size_t i = 0; i < std::size(handles); ++i) {
-    auto* value = container.resolve(handles[i]);
-    *value = static_cast<int32_t>(i) + 1;
+    container.call(
+      handles[i], [i](int& value) { value = static_cast<int32_t>(i) + 1; });
   }
 
-  void* address_before = container.resolve(handles[0]);
+  void* address_before =
+    container.call_return(handles[0], [](int& value) { return &value; })
+      .value();
 
   container.remove(handles[0]);
-  const auto* last = container.resolve(handles[4]);
+  const auto* last =
+    container.call_return(handles[4], [](int& value) { return &value; })
+      .value();
 
   CHECK(*last == 5);
   CHECK(last == address_before);
@@ -483,12 +494,16 @@ TEST_CASE("FirstElementReturnedAfterClear")
     handle = container.add();
   }
 
-  void* begin = container.resolve(handles[0]);
+  const void* begin = nullptr;
+  container.call(handles[0], [&begin](const auto& value) { begin = &value; });
 
   container.clear();
 
   thh::handle_t next_handle = container.add();
-  void* element = container.resolve(next_handle);
+
+  const void* element = nullptr;
+  container.call(
+    next_handle, [&element](const auto& value) { element = &value; });
 
   CHECK(begin == element);
 }
@@ -536,7 +551,7 @@ TEST_CASE("HoldMoveOnlyType")
 {
   struct resource_t
   {
-    resource_t() = default;
+    resource_t() {} // user provided constructor
     resource_t(resource_t&&) = default;
     resource_t& operator=(resource_t&&) = default;
   };
@@ -571,10 +586,12 @@ TEST_CASE("TaggedHandle")
   [[maybe_unused]] const thh::handle_t float_handle = float_container.add();
 
   // note - lines do not compile (type mismatch error)
-  // float* width_1 = width_container.resolve(height_handle);
-  // float* width_2 = width_container.resolve(float_handle);
+  // width_container.call(height_handle, [](const auto&) {});
+  // width_container.call(float_handle, [](const auto&) {});
 
-  [[maybe_unused]] float* width = width_container.resolve(width_handle);
+  const float* width = nullptr;
+  width_container.call(
+    width_handle, [&width](const auto& value) { width = &value; });
   CHECK(width != nullptr);
 }
 
@@ -589,25 +606,12 @@ TEST_CASE("SupportNonDefaultConstructibleType")
   thh::container_t<no_default_constructor_t> container;
   const auto handle = container.add(4);
 
-  {
-    auto* value = container.resolve(handle);
-    CHECK(value->i_ == 4);
-  }
+  container.call(handle, [](const auto& value) { CHECK(value.i_ == 4); });
 
   container.remove(handle);
-  CHECK(container.resolve(handle) == nullptr);
-}
-
-TEST_CASE("AddAndResolveInOneStep")
-{
-  thh::container_t<int> container;
-
-  const auto [handle, value] = container.add_and_resolve();
-
-  auto* next_value = container.resolve(handle);
-
-  CHECK(value == next_value);
-  CHECK(*value == *next_value);
+  CHECK(container.call_return(handle, [](const auto&) {
+    return true;
+  }) == std::nullopt);
 }
 
 TEST_CASE("ValuesAccessedThroughIterators")
@@ -624,8 +628,7 @@ TEST_CASE("ValuesAccessedThroughIterators")
     [i = 0](auto& elem) mutable { elem = i++; });
 
   for (size_t i = 0; i < element_count; ++i) {
-    const auto* value = container.resolve(handles[i]);
-    CHECK(*value == i);
+    container.call(handles[i], [i](const auto& value) { CHECK(value == i); });
   }
 }
 
@@ -635,8 +638,8 @@ TEST_CASE("AccumulateWithIterators")
   constexpr const size_t element_count = 10;
   thh::handle_t handles[element_count];
   for (auto& handle : handles) {
-    auto [h, v] = container.add_and_resolve();
-    *v = 5;
+    const auto h = container.add();
+    container.call(h, [](auto& value) { value = 5; });
     handle = h;
   }
 
@@ -656,8 +659,8 @@ TEST_CASE("FindWithIterators")
   thh::handle_t handles[element_count];
 
   for (size_t i = 0; i < element_count; ++i) {
-    auto [h, v] = container.add_and_resolve();
-    *v = static_cast<int>(i);
+    const auto h = container.add();
+    container.call(h, [i](auto& value) { value = static_cast<int>(i); });
     handles[i] = h;
   }
 

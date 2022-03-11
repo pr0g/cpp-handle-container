@@ -67,9 +67,10 @@ static void resolve(benchmark::State& state)
   thh::container_t<int> container;
   thh::handle_t handle = container.add();
   for ([[maybe_unused]] auto _ : state) {
-    [[maybe_unused]] int* element = container.resolve(handle);
-    benchmark::DoNotOptimize(element);
-    benchmark::ClobberMemory();
+    container.call(handle, [](const auto& element) {
+      benchmark::DoNotOptimize(element);
+      benchmark::ClobberMemory();
+    });
   }
 }
 
@@ -103,9 +104,10 @@ static void enumerate_callback_resolve(benchmark::State& state)
   }
   for ([[maybe_unused]] auto _ : state) {
     for (int64_t i = 0; i < container.size(); ++i) {
-      int* element = container.resolve(handles[i]);
-      *element = static_cast<int>(i);
-      benchmark::ClobberMemory();
+      container.call(handles[i], [i](auto& element) {
+        element = static_cast<int>(i);
+        benchmark::ClobberMemory();
+      });
     }
   }
 }
