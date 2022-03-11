@@ -26,11 +26,9 @@ Note: `-DBENCHMARK_ENABLE_TESTING=OFF` is passed to CMake at configure time to e
 
 ## Gotchas
 
-The `resolve` function (added in the initial version of the library) is easy to use incorrectly due to the fact that if the internal vector has to grow and reallocate, any existing pointers may become invalidated (dangling).
+The `resolve` function (added in the initial version of the library) was easy to use incorrectly due to the fact that if the internal vector had to grow and reallocate, any existing pointers would be invalidated (dangling).
 
-This is unfortunately quite easy to do by mistake. A much better interface which makes this harder to do is to use `call`. This accepts a handle and a callable object (a lambda taking an element as its only parameter) which is resolved internally and called. This makes it much harder to accidentally hold onto a pointer for too long (see the tests for an example).
-
-The `resolve` and `add_and_resolve` functions may be removed from the public interface in future.
+This was unfortunately quite easy to do by mistake. A much better interface which makes this harder to do is provided by `call`. This accepts a handle and a callable object (a lambda taking an element as its only parameter) which is resolved internally and called. This makes it much harder to accidentally hold onto a pointer for too long (see the tests for examples).
 
 ## Usage
 
