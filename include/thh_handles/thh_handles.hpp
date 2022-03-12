@@ -40,7 +40,7 @@ namespace thh
   // may be accessed by resolving the returned typed_handle_t from add()
   // note: provide a custom tag to create a type-safe container-handle pair
   template<typename T, typename Tag = default_tag_t>
-  class container_t
+  class handle_vector_t
   {
     // internal mapping from external handle to internal element
     // maintains a reference to the next free handle

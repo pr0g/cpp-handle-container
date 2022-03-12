@@ -15,7 +15,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  void container_t<T, Tag>::try_allocate_more_handles()
+  void handle_vector_t<T, Tag>::try_allocate_more_handles()
   {
     if (handles_.size() < elements_.capacity()) {
       const auto last_handle_size = handles_.size();
@@ -33,7 +33,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename... Args>
-  typed_handle_t<Tag> container_t<T, Tag>::add(Args&&... args)
+  typed_handle_t<Tag> handle_vector_t<T, Tag>::add(Args&&... args)
   {
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -63,7 +63,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename Fn>
-  void container_t<T, Tag>::call(const typed_handle_t<Tag> handle, Fn&& fn)
+  void handle_vector_t<T, Tag>::call(const typed_handle_t<Tag> handle, Fn&& fn)
   {
     if (T* element = resolve(handle)) {
       fn(*element);
@@ -72,7 +72,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename Fn>
-  void container_t<T, Tag>::call(
+  void handle_vector_t<T, Tag>::call(
     const typed_handle_t<Tag> handle, Fn&& fn) const
   {
     if (const T* element = resolve(handle)) {
@@ -82,7 +82,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename Fn>
-  decltype(auto) container_t<T, Tag>::call_return(
+  decltype(auto) handle_vector_t<T, Tag>::call_return(
     typed_handle_t<Tag> handle, Fn&& fn)
   {
     if (T* element = resolve(handle)) {
@@ -93,7 +93,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename Fn>
-  decltype(auto) container_t<T, Tag>::call_return(
+  decltype(auto) handle_vector_t<T, Tag>::call_return(
     typed_handle_t<Tag> handle, Fn&& fn) const
   {
     if (const T* element = resolve(handle)) {
@@ -103,7 +103,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  bool container_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
+  bool handle_vector_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -122,7 +122,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  bool container_t<T, Tag>::remove(const typed_handle_t<Tag> handle)
+  bool handle_vector_t<T, Tag>::remove(const typed_handle_t<Tag> handle)
   {
     assert(element_ids_.size() == elements_.size());
 
@@ -153,7 +153,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  int32_t container_t<T, Tag>::size() const
+  int32_t handle_vector_t<T, Tag>::size() const
   {
     assert(element_ids_.size() == elements_.size());
     assert(elements_.size() <= std::numeric_limits<int32_t>::max());
@@ -161,14 +161,15 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  int32_t container_t<T, Tag>::capacity() const
+  int32_t handle_vector_t<T, Tag>::capacity() const
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
     return static_cast<int32_t>(handles_.size());
   }
 
   template<typename T, typename Tag>
-  const T* container_t<T, Tag>::resolve(const typed_handle_t<Tag> handle) const
+  const T* handle_vector_t<T, Tag>::resolve(
+    const typed_handle_t<Tag> handle) const
   {
     if (!has(handle)) {
       return nullptr;
@@ -178,14 +179,14 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  T* container_t<T, Tag>::resolve(const typed_handle_t<Tag> handle)
+  T* handle_vector_t<T, Tag>::resolve(const typed_handle_t<Tag> handle)
   {
     return const_cast<T*>(
-      static_cast<const container_t&>(*this).resolve(handle));
+      static_cast<const handle_vector_t&>(*this).resolve(handle));
   }
 
   template<typename T, typename Tag>
-  void container_t<T, Tag>::reserve(const int32_t capacity)
+  void handle_vector_t<T, Tag>::reserve(const int32_t capacity)
   {
     assert(capacity > 0);
 
@@ -196,7 +197,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  void container_t<T, Tag>::clear()
+  void handle_vector_t<T, Tag>::clear()
   {
     assert(handles_.size() <= std::numeric_limits<int32_t>::max());
 
@@ -214,47 +215,48 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  bool container_t<T, Tag>::empty() const
+  bool handle_vector_t<T, Tag>::empty() const
   {
     assert(elements_.empty() == element_ids_.empty());
     return elements_.empty();
   }
 
   template<typename T, typename Tag>
-  auto container_t<T, Tag>::begin() -> typename decltype(elements_)::iterator
+  auto handle_vector_t<T, Tag>::begin() ->
+    typename decltype(elements_)::iterator
   {
     return elements_.begin();
   }
 
   template<typename T, typename Tag>
-  auto container_t<T, Tag>::begin() const ->
+  auto handle_vector_t<T, Tag>::begin() const ->
     typename decltype(elements_)::const_iterator
   {
     return elements_.begin();
   }
 
   template<typename T, typename Tag>
-  auto container_t<T, Tag>::cbegin() const ->
+  auto handle_vector_t<T, Tag>::cbegin() const ->
     typename decltype(elements_)::const_iterator
   {
     return elements_.cbegin();
   }
 
   template<typename T, typename Tag>
-  auto container_t<T, Tag>::end() -> typename decltype(elements_)::iterator
+  auto handle_vector_t<T, Tag>::end() -> typename decltype(elements_)::iterator
   {
     return elements_.end();
   }
 
   template<typename T, typename Tag>
-  auto container_t<T, Tag>::end() const ->
+  auto handle_vector_t<T, Tag>::end() const ->
     typename decltype(elements_)::const_iterator
   {
     return elements_.end();
   }
 
   template<typename T, typename Tag>
-  auto container_t<T, Tag>::cend() const ->
+  auto handle_vector_t<T, Tag>::cend() const ->
     typename decltype(elements_)::const_iterator
   {
     return elements_.cend();
@@ -262,7 +264,7 @@ namespace thh
 
   template<typename T, typename Tag>
   template<typename Fn>
-  void container_t<T, Tag>::enumerate(Fn&& fn)
+  void handle_vector_t<T, Tag>::enumerate(Fn&& fn)
   {
     for (auto& element : elements_) {
       fn(element);
@@ -270,7 +272,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  std::string container_t<T, Tag>::debug_handles() const
+  std::string handle_vector_t<T, Tag>::debug_handles() const
   {
     constexpr const char filled_glyph[] = "[o]";
     constexpr const char empty_glyph[] = "[x]";
