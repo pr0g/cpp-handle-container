@@ -4,9 +4,9 @@
 
 static void add_element(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
+  thh::handle_vector_t<int> handle_vector;
   for ([[maybe_unused]] auto _ : state) {
-    const thh::handle_t handle = container.add();
+    const thh::handle_t handle = handle_vector.add();
     benchmark::DoNotOptimize(handle);
     benchmark::ClobberMemory();
   }
@@ -16,10 +16,10 @@ BENCHMARK(add_element);
 
 static void add_element_with_reserve(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
-  container.reserve(8);
+  thh::handle_vector_t<int> handle_vector;
+  handle_vector.reserve(8);
   for ([[maybe_unused]] auto _ : state) {
-    const thh::handle_t handle = container.add();
+    const thh::handle_t handle = handle_vector.add();
     benchmark::DoNotOptimize(handle);
     benchmark::ClobberMemory();
   }
@@ -29,10 +29,10 @@ BENCHMARK(add_element_with_reserve);
 
 static void remove_element(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
-  const thh::handle_t handle = container.add();
+  thh::handle_vector_t<int> handle_vector;
+  const thh::handle_t handle = handle_vector.add();
   for ([[maybe_unused]] auto _ : state) {
-    container.remove(handle);
+    handle_vector.remove(handle);
     benchmark::ClobberMemory();
   }
 }
@@ -41,10 +41,10 @@ BENCHMARK(remove_element);
 
 static void has_element_present(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
-  thh::handle_t handle = container.add();
+  thh::handle_vector_t<int> handle_vector;
+  thh::handle_t handle = handle_vector.add();
   for ([[maybe_unused]] auto _ : state) {
-    benchmark::DoNotOptimize(container.has(handle));
+    benchmark::DoNotOptimize(handle_vector.has(handle));
   }
 }
 
@@ -52,11 +52,11 @@ BENCHMARK(has_element_present);
 
 static void has_element_not_present(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
-  thh::handle_t handle = container.add();
-  container.remove(handle);
+  thh::handle_vector_t<int> handle_vector;
+  thh::handle_t handle = handle_vector.add();
+  handle_vector.remove(handle);
   for ([[maybe_unused]] auto _ : state) {
-    benchmark::DoNotOptimize(container.has(handle));
+    benchmark::DoNotOptimize(handle_vector.has(handle));
   }
 }
 
@@ -64,10 +64,10 @@ BENCHMARK(has_element_not_present);
 
 static void resolve(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
-  thh::handle_t handle = container.add();
+  thh::handle_vector_t<int> handle_vector;
+  thh::handle_t handle = handle_vector.add();
   for ([[maybe_unused]] auto _ : state) {
-    container.call(handle, [](const auto& element) {
+    handle_vector.call(handle, [](const auto& element) {
       benchmark::DoNotOptimize(element);
       benchmark::ClobberMemory();
     });
@@ -78,14 +78,14 @@ BENCHMARK(resolve);
 
 static void enumerate_callback(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
+  thh::handle_vector_t<int> handle_vector;
   std::vector<thh::handle_t> handles;
   handles.reserve(10);
   for (int i = 0; i < 10; ++i) {
-    handles.push_back(container.add());
+    handles.push_back(handle_vector.add());
   }
   for ([[maybe_unused]] auto _ : state) {
-    container.enumerate([i = 0](auto& element) mutable {
+    handle_vector.enumerate([i = 0](auto& element) mutable {
       element = i++;
       benchmark::ClobberMemory();
     });
@@ -96,15 +96,15 @@ BENCHMARK(enumerate_callback);
 
 static void enumerate_callback_resolve(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
+  thh::handle_vector_t<int> handle_vector;
   std::vector<thh::handle_t> handles;
   handles.reserve(10);
   for (int i = 0; i < 10; ++i) {
-    handles.push_back(container.add());
+    handles.push_back(handle_vector.add());
   }
   for ([[maybe_unused]] auto _ : state) {
-    for (int64_t i = 0; i < container.size(); ++i) {
-      container.call(handles[i], [i](auto& element) {
+    for (int64_t i = 0; i < handle_vector.size(); ++i) {
+      handle_vector.call(handles[i], [i](auto& element) {
         element = static_cast<int>(i);
         benchmark::ClobberMemory();
       });
@@ -116,15 +116,15 @@ BENCHMARK(enumerate_callback_resolve);
 
 static void enumerate_iterators(benchmark::State& state)
 {
-  thh::handle_vector_t<int> container;
+  thh::handle_vector_t<int> handle_vector;
   std::vector<thh::handle_t> handles;
   handles.reserve(10);
   for (int i = 0; i < 10; ++i) {
-    handles.push_back(container.add());
+    handles.push_back(handle_vector.add());
   }
   for ([[maybe_unused]] auto _ : state) {
     int i = 0;
-    for (auto& element : container) {
+    for (auto& element : handle_vector) {
       element = i++;
       benchmark::ClobberMemory();
     }
