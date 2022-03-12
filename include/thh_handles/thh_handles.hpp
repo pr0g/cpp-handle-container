@@ -76,7 +76,8 @@ namespace thh
     [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);
 
   public:
-    using iterator = typename std::vector<T>::iterator;
+    using iterator = typename decltype(elements_)::iterator;
+    using const_iterator = typename decltype(elements_)::const_iterator;
 
     // creates an element T in-place and returns a handle to it
     // note: args allow arguments to be passed directly to the type constructor
@@ -122,17 +123,17 @@ namespace thh
     // returns if the container has any elements or not
     [[nodiscard]] bool empty() const;
     // returns an iterator to the beginning of the elements
-    auto begin() -> typename decltype(elements_)::iterator;
+    auto begin() -> iterator;
     // returns a const iterator to the beginning of the elements
-    auto begin() const -> typename decltype(elements_)::const_iterator;
+    auto begin() const -> const_iterator;
     // returns a const iterator to the beginning of the elements
-    auto cbegin() const -> typename decltype(elements_)::const_iterator;
+    auto cbegin() const -> const_iterator;
     // returns an iterator to the end of the elements
-    auto end() -> typename decltype(elements_)::iterator;
+    auto end() -> iterator;
     // returns a const iterator to the end of the elements
-    auto end() const -> typename decltype(elements_)::const_iterator;
+    auto end() const -> const_iterator;
     // returns a const iterator to the end of the elements
-    auto cend() const -> typename decltype(elements_)::const_iterator;
+    auto cend() const -> const_iterator;
     // enumerate each element stored in the container invoking the provided
     // function
     template<typename Fn>

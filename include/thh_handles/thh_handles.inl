@@ -222,42 +222,37 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::begin() ->
-    typename decltype(elements_)::iterator
+  auto handle_vector_t<T, Tag>::begin() -> iterator
   {
     return elements_.begin();
   }
 
   template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::begin() const ->
-    typename decltype(elements_)::const_iterator
+  auto handle_vector_t<T, Tag>::begin() const -> const_iterator
   {
     return elements_.begin();
   }
 
   template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::cbegin() const ->
-    typename decltype(elements_)::const_iterator
+  auto handle_vector_t<T, Tag>::cbegin() const -> const_iterator
   {
     return elements_.cbegin();
   }
 
   template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::end() -> typename decltype(elements_)::iterator
+  auto handle_vector_t<T, Tag>::end() -> iterator
   {
     return elements_.end();
   }
 
   template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::end() const ->
-    typename decltype(elements_)::const_iterator
+  auto handle_vector_t<T, Tag>::end() const -> const_iterator
   {
     return elements_.end();
   }
 
   template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::cend() const ->
-    typename decltype(elements_)::const_iterator
+  auto handle_vector_t<T, Tag>::cend() const -> const_iterator
   {
     return elements_.cend();
   }
