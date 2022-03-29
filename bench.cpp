@@ -76,7 +76,7 @@ static void resolve(benchmark::State& state)
 
 BENCHMARK(resolve);
 
-static void enumerate_callback(benchmark::State& state)
+static void enumerate_range_for(benchmark::State& state)
 {
   thh::handle_vector_t<int> handle_vector;
   std::vector<thh::handle_t> handles;
@@ -85,16 +85,17 @@ static void enumerate_callback(benchmark::State& state)
     handles.push_back(handle_vector.add());
   }
   for ([[maybe_unused]] auto _ : state) {
-    handle_vector.enumerate([i = 0](auto& element) mutable {
+    for (auto& element : handle_vector) {
+      int i = 0;
       element = i++;
       benchmark::ClobberMemory();
-    });
+    }
   }
 }
 
-BENCHMARK(enumerate_callback);
+BENCHMARK(enumerate_range_for);
 
-static void enumerate_callback_resolve(benchmark::State& state)
+static void enumerate_resolve(benchmark::State& state)
 {
   thh::handle_vector_t<int> handle_vector;
   std::vector<thh::handle_t> handles;
@@ -112,7 +113,7 @@ static void enumerate_callback_resolve(benchmark::State& state)
   }
 }
 
-BENCHMARK(enumerate_callback_resolve);
+BENCHMARK(enumerate_resolve);
 
 static void enumerate_iterators(benchmark::State& state)
 {

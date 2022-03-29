@@ -365,10 +365,10 @@ TEST_CASE("EnumerateMutableElements")
     entity_handles.push_back(entities.add());
   }
 
-  entities.enumerate([](entity_t& entity) {
+  for (entity_t& entity : entities) {
     entity.x_ += 1;
     entity.y_ += 2;
-  });
+  }
 
   CHECK(entity_handles.size() == entity_handle_count);
   for (const auto& entity_handle : entity_handles) {
@@ -395,11 +395,10 @@ TEST_CASE("EnumerateImmutableElements")
 
   int total_width = 0;
   int total_height = 0;
-  entities.enumerate(
-    [&total_width, &total_height](const entity_t& entity) mutable {
-      total_width += entity.w_;
-      total_height += entity.h_;
-    });
+  for (const entity_t& entity : entities) {
+    total_width += entity.w_;
+    total_height += entity.h_;
+  }
 
   CHECK(total_height == 10);
   CHECK(total_width == 20);

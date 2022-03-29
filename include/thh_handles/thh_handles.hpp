@@ -69,12 +69,12 @@ namespace thh
     // elements (T) grows (the capacity increases)
     void try_allocate_more_handles();
 
-    // returns a constant pointer to the underlying element T referenced by the
-    // handle
-    [[nodiscard]] const T* resolve(typed_handle_t<Tag> handle) const;
     // returns a mutable pointer to the underlying element T referenced by the
     // handle
     [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);
+    // returns a constant pointer to the underlying element T referenced by the
+    // handle
+    [[nodiscard]] const T* resolve(typed_handle_t<Tag> handle) const;
 
   public:
     using iterator = typename decltype(elements_)::iterator;
@@ -135,10 +135,6 @@ namespace thh
     auto end() const -> const_iterator;
     // returns a const iterator to the end of the elements
     auto cend() const -> const_iterator;
-    // enumerate each element stored in the container invoking the provided
-    // function
-    template<typename Fn>
-    void enumerate(Fn&& fn);
     // return an ascii representation of the currently allocated handles
     // note: useful for debugging purposes
     [[nodiscard]] std::string debug_handles() const;

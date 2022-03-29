@@ -258,15 +258,6 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  template<typename Fn>
-  void handle_vector_t<T, Tag>::enumerate(Fn&& fn)
-  {
-    for (auto& element : elements_) {
-      fn(element);
-    }
-  }
-
-  template<typename T, typename Tag>
   std::string handle_vector_t<T, Tag>::debug_handles() const
   {
     constexpr const char filled_glyph[] = "[o]";
