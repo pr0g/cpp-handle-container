@@ -67,7 +67,7 @@ namespace thh
 
     // increases the number of availble handles when the underlying container of
     // elements (T) grows (the capacity increases)
-    void try_allocate_more_handles();
+    void try_allocate_handles();
 
     // returns a mutable pointer to the underlying element T referenced by the
     // handle

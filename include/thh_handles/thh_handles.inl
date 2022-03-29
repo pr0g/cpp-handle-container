@@ -15,7 +15,7 @@ namespace thh
   }
 
   template<typename T, typename Tag>
-  void handle_vector_t<T, Tag>::try_allocate_more_handles()
+  void handle_vector_t<T, Tag>::try_allocate_handles()
   {
     if (handles_.size() < elements_.capacity()) {
       const auto last_handle_size = handles_.size();
@@ -45,7 +45,7 @@ namespace thh
 
     // if backing store increased, create additional handles for newly available
     // elements
-    try_allocate_more_handles();
+    try_allocate_handles();
 
     // map handle to newly allocated element
     handles_[next_].lookup_ = index;
@@ -193,7 +193,7 @@ namespace thh
     elements_.reserve(capacity);
     element_ids_.reserve(capacity);
 
-    try_allocate_more_handles();
+    try_allocate_handles();
   }
 
   template<typename T, typename Tag>
