@@ -1,4 +1,4 @@
-#include "thh_handles/thh_handles.hpp"
+#include "thh_handles/handle-vector.hpp"
 
 #include <benchmark/benchmark.h>
 

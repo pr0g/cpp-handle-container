@@ -32,7 +32,7 @@ This was unfortunately quite easy to do by mistake. A much better interface whic
 
 ## Usage
 
-Either drop the `thh_handles` inside `include/` into your project (and then just `#include "thh_handles/thh_handles.hpp"`) or use CMake's `FetchContent` command.
+Either drop the `thh-handle-vector` inside `include/` into your project (and then just `#include "thh-handle-vector/handle-vector.hpp"`) or use CMake's `FetchContent` command.
 
 e.g.
 
@@ -40,15 +40,15 @@ e.g.
 # CMakeLists.txt
 include(FetchContent)
 FetchContent_Declare(
-  thh_handles
+  thh-handle-vector
   GIT_REPOSITORY https://github.com/pr0g/cpp-handle-container.git
   GIT_TAG        <latest-commit>)
-FetchContent_MakeAvailable(thh_handles)
+FetchContent_MakeAvailable(thh-handle-vector)
 ...
-target_link_libraries(<your-project> <PRIVATE/PUBLIC> thh_handles)
+target_link_libraries(<your-project> <PRIVATE/PUBLIC> thh-handle-vector)
 ```
 
 ```c++
 // .h/cpp file
-#include "thh_handles/thh_handles.hpp"
+#include "thh-handle-vector/handle-vector.hpp"
 ```

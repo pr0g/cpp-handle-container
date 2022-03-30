@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 
-#include "thh_handles/thh_handles.hpp"
+#include "thh_handles/handle-vector.hpp"
 
 #include <numeric>
 

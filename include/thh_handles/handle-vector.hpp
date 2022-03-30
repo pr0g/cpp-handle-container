@@ -141,4 +141,4 @@ namespace thh
   };
 } // namespace thh
 
-#include "thh_handles.inl"
+#include "handle-vector.inl"

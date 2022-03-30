@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(thh_handles LANGUAGES CXX)
+project(thh-handle-vector LANGUAGES CXX)
 
 include(FetchContent)
 
