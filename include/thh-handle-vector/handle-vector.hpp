@@ -111,7 +111,7 @@ namespace thh
     bool remove(typed_handle_t<Tag> handle);
     // returns if the container still has the element referenced by the handle
     [[nodiscard]] bool has(typed_handle_t<Tag> handle) const;
-    // returns the number of elements currently allocated by the container
+    // returns the number of elements currently stored in the container
     [[nodiscard]] int32_t size() const;
     // returns the number of available handles (includes element storage that is
     // reserved but not yet in use)
