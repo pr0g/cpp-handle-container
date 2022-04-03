@@ -8,3 +8,15 @@
 - ~~add a way to distinguish handles from separate containers~~
 - ~~add iterator support (begin/end interface?)~~
 - ~~consider special members (move only type?)~~ No, shouldn't limit all possible use cases.
+
+## other
+
+### potential names
+
+- variable_indirect_array
+- indirect_vector
+- handle_vector
+- sparse_array
+- packed_sparse_array
+- dense_array
+- sequential_lookup
