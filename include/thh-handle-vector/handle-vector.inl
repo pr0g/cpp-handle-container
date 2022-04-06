@@ -215,6 +215,26 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  typed_handle_t<Tag> handle_vector_t<T, Tag>::handle_from_index(
+    const int32_t index)
+  {
+    if (index < 0 || index >= element_ids_.size()) {
+      return typed_handle_t<Tag>{};
+    }
+    return handles_[element_ids_[index]].handle_;
+  }
+
+  template<typename T, typename Tag>
+  std::optional<int32_t> handle_vector_t<T, Tag>::index_from_handle(
+    const typed_handle_t<Tag> handle)
+  {
+    if (!has(handle)) {
+      return std::nullopt;
+    }
+    return handles_[handle.id_].lookup_;
+  }
+
+  template<typename T, typename Tag>
   bool handle_vector_t<T, Tag>::empty() const
   {
     assert(elements_.empty() == element_ids_.empty());

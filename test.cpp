@@ -820,3 +820,71 @@ TEST_CASE("ConstContainerEmptyCheck")
   const thh::handle_vector_t<int>& const_handle_vector = handle_vector;
   CHECK(const_handle_vector.empty());
 }
+
+TEST_CASE("HandleCanBeReturnedFromIndex")
+{
+  thh::handle_vector_t<int> handle_vector;
+  auto handle1 = handle_vector.add();
+  auto handle2 = handle_vector.add();
+  auto handle3 = handle_vector.add();
+
+  auto handle_from_index1 = handle_vector.handle_from_index(0);
+  auto handle_from_index2 = handle_vector.handle_from_index(1);
+  auto handle_from_index3 = handle_vector.handle_from_index(2);
+
+  CHECK(handle1 == handle_from_index1);
+  CHECK(handle2 == handle_from_index2);
+  CHECK(handle3 == handle_from_index3);
+}
+
+TEST_CASE("HandleCanBeReturnedFromIndexWithRemovals")
+{
+  thh::handle_vector_t<int> handle_vector;
+  const int32_t initial_handle_count = 10;
+  std::vector<thh::handle_t> handles;
+  for (int32_t i = 0; i < initial_handle_count; ++i) {
+    handles.push_back(handle_vector.add(i));
+  }
+
+  for (int32_t i = 0; i < initial_handle_count; ++i) {
+    if (i % 2 == 0) {
+      handle_vector.remove(handles[i]);
+    }
+  }
+
+  for (int32_t i = 0; i < initial_handle_count / 2; ++i) {
+    const auto handle = handle_vector.handle_from_index(i);
+    const auto index = handle_vector.index_from_handle(handle);
+    CHECK(i == index);
+  }
+}
+
+TEST_CASE("InvalidHandleReturnedWithOutOfRangeIndex")
+{
+  thh::handle_vector_t<int> handle_vector;
+  handle_vector.add();
+  handle_vector.add();
+  handle_vector.add();
+
+  const auto invalid_handle1 = handle_vector.handle_from_index(-1);
+  const auto invalid_handle2 = handle_vector.handle_from_index(4);
+
+  CHECK(invalid_handle1 == thh::handle_t{});
+  CHECK(invalid_handle2 == thh::handle_t{});
+}
+
+TEST_CASE("EmptyOptionalReturnedWithInvalidHandle")
+{
+  thh::handle_vector_t<int> handle_vector;
+  handle_vector.add();
+  handle_vector.add();
+  const auto last_handle = handle_vector.add();
+
+  handle_vector.remove(last_handle);
+
+  const auto invalid_index1 = handle_vector.index_from_handle(thh::handle_t{});
+  const auto invalid_index2 = handle_vector.index_from_handle(last_handle);
+
+  CHECK(!invalid_index1.has_value());
+  CHECK(!invalid_index2.has_value());
+}
