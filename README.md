@@ -32,7 +32,7 @@ This was unfortunately quite easy to do by mistake. A much better interface whic
 
 ## Usage
 
-Either drop the `thh-handle-vector` inside `include/` into your project (and then just `#include "thh-handle-vector/handle-vector.hpp"`) or use CMake's `FetchContent` command.
+Either drop the `thh-handle-vector` folder inside `include/` into your project (and then just `#include "thh-handle-vector/handle-vector.hpp"`) or use CMake's `FetchContent` command.
 
 e.g.
 
