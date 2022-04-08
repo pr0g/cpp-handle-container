@@ -218,7 +218,7 @@ namespace thh
   typed_handle_t<Tag> handle_vector_t<T, Tag>::handle_from_index(
     const int32_t index)
   {
-    if (index < 0 || index >= element_ids_.size()) {
+    if (index < 0 || index >= static_cast<int32_t>(element_ids_.size())) {
       return typed_handle_t<Tag>{};
     }
     return handles_[element_ids_[index]].handle_;
