@@ -216,7 +216,7 @@ namespace thh
 
   template<typename T, typename Tag>
   typed_handle_t<Tag> handle_vector_t<T, Tag>::handle_from_index(
-    const int32_t index)
+    const int32_t index) const
   {
     if (index < 0 || index >= static_cast<int32_t>(element_ids_.size())) {
       return typed_handle_t<Tag>{};
@@ -226,7 +226,7 @@ namespace thh
 
   template<typename T, typename Tag>
   std::optional<int32_t> handle_vector_t<T, Tag>::index_from_handle(
-    const typed_handle_t<Tag> handle)
+    const typed_handle_t<Tag> handle) const
   {
     if (!has(handle)) {
       return std::nullopt;

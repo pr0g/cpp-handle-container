@@ -121,10 +121,12 @@ namespace thh
     // removes all elements and invalidates all handles
     // note: capacity remains unchanged, internal handles are not cleared
     void clear();
-    //
-    typed_handle_t<Tag> handle_from_index(int32_t index);
-    //
-    std::optional<int32_t> index_from_handle(typed_handle_t<Tag> handle);
+    // returns the handle for a value at the given index
+    // note: will return an invalid handle if the index is out of range
+    typed_handle_t<Tag> handle_from_index(int32_t index) const;
+    // returns the index (position) of a value for a given handle
+    // note: will return an empty optional if the handle is invalid
+    std::optional<int32_t> index_from_handle(typed_handle_t<Tag> handle) const;
     // returns if the container has any elements or not
     [[nodiscard]] bool empty() const;
     // returns an iterator to the beginning of the elements
