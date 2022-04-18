@@ -24,9 +24,9 @@ namespace thh
       for (size_t i = last_handle_size; i < handles_.size(); i++) {
         assert(i < std::numeric_limits<int32_t>::max() - 1);
         const auto handle_index = static_cast<int32_t>(i);
-        handles_[i].handle_ = typed_handle_t<Tag>(handle_index, -1);
-        handles_[i].lookup_ = -1;
-        handles_[i].next_ = handle_index + 1;
+        handles_[handle_index].handle_ = typed_handle_t<Tag>(handle_index, -1);
+        handles_[handle_index].lookup_ = -1;
+        handles_[handle_index].next_ = handle_index + 1;
       }
     }
   }
@@ -130,15 +130,16 @@ namespace thh
       return false;
     }
 
+    using std::swap;
     const size_t back = element_ids_.size() - 1;
     // find the handle of the last element currently stored and have it
     // point to the look-up of the element about to be removed
     handles_[element_ids_[back]].lookup_ = handles_[handle.id_].lookup_;
     // swap the last element with the element being removed
-    std::swap(elements_[handles_[handle.id_].lookup_], elements_[back]);
+    swap(elements_[handles_[handle.id_].lookup_], elements_[back]);
     // swap the last element id with the element id being removed
     // (the element_ and element_ids_ vector have a one to one mapping)
-    std::swap(element_ids_[handles_[handle.id_].lookup_], element_ids_[back]);
+    swap(element_ids_[handles_[handle.id_].lookup_], element_ids_[back]);
 
     // free handle being removed (make ready for reuse)
     handles_[handle.id_].lookup_ = -1;
@@ -174,7 +175,6 @@ namespace thh
     if (!has(handle)) {
       return nullptr;
     }
-
     return &elements_[handles_[handle.id_].lookup_];
   }
 

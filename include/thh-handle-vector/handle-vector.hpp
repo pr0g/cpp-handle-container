@@ -141,7 +141,7 @@ namespace thh
     auto end() const -> const_iterator;
     // returns a const iterator to the end of the elements
     auto cend() const -> const_iterator;
-    // return an ascii representation of the currently allocated handles
+    // returns an ascii representation of the currently allocated handles
     // note: useful for debugging purposes
     [[nodiscard]] std::string debug_handles() const;
   };
