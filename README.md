@@ -12,6 +12,13 @@ Excellent resources on the subject:
 - [Managing Data Relationships](https://gamesfromwithin.com/managing-data-relationships) - Noel Llopis ([Twitter](https://twitter.com/noel_llopis), [GitHub](https://github.com/llopis))
 - [Handles are the better pointers](https://floooh.github.io/2018/06/17/handles-vs-pointers.html) - Andre Weissflog (FlohOfWoe, Floooh) ([Twitter](https://twitter.com/FlohOfWoe), [GitHub](https://github.com/floooh))
 
+More useful resources:
+
+- [Adventures in data-oriented design – Part 3b: Internal References](https://blog.molecular-matters.com/2013/05/17/adventures-in-data-oriented-design-part-3b-internal-references/)
+- [Adventures in data-oriented design – Part 3c: External References](https://blog.molecular-matters.com/2013/07/24/adventures-in-data-oriented-design-part-3c-external-references/)
+  - Stefan Reinalter ([Twitter](https://twitter.com/molecularmusing), [GitHub](https://github.com/MolecularMatters))
+- [Using Uninitialized Memory for Fun and Profit](https://research.swtch.com/sparse) - Russ Cox
+
 ## Building
 
 To build tests and benchmarks pass `-DTHH_HANDLE_ENABLE_TEST` and `-DTHH_HANDLE_ENABLE_BENCH` to CMake.
