@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <numeric>
 
 namespace thh
 {
@@ -144,6 +145,9 @@ namespace thh
     // returns an ascii representation of the currently allocated handles
     // note: useful for debugging purposes
     [[nodiscard]] std::string debug_handles() const;
+
+    template<typename Compare>
+    void sort(Compare&& cmp);
   };
 } // namespace thh
 

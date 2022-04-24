@@ -20,3 +20,5 @@
 - packed_sparse_array
 - dense_array
 - sequential_lookup
+
+- it should be possible to sort container by external index and then update the handles

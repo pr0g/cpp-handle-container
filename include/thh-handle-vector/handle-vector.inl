@@ -296,4 +296,38 @@ namespace thh
 
     return buffer;
   }
+
+  template<typename T>
+  void apply_permutation(std::vector<T>& v, std::vector<int32_t> indices)
+  {
+    using std::swap;
+    for (int32_t i = 0; i < int32_t(indices.size()); i++) {
+      auto current = i;
+      while (i != indices[current]) {
+        auto next = indices[current];
+        swap(v[current], v[next]);
+        indices[current] = current;
+        current = next;
+      }
+      indices[current] = current;
+    }
+  }
+
+  template<typename T, typename Tag>
+  template<typename Compare>
+  void handle_vector_t<T, Tag>::sort(Compare&& cmp)
+  {
+    std::vector<int32_t> indices(size());
+    std::iota(indices.begin(), indices.end(), 0);
+    std::sort(indices.begin(), indices.end(), cmp);
+    for (int i = 0; i < size(); ++i) {
+      auto other =
+        std::find(indices.begin(), indices.end(), handles_[i].lookup_);
+      if (other != indices.end()) {
+        handles_[i].lookup_ = int32_t(std::distance(indices.begin(), other));
+      }
+    }
+    apply_permutation(elements_, indices);
+    apply_permutation(element_ids_, indices);
+  }
 } // namespace thh

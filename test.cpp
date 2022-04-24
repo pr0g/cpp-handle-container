@@ -888,3 +888,40 @@ TEST_CASE("EmptyOptionalReturnedWithInvalidHandle")
   CHECK(!invalid_index1.has_value());
   CHECK(!invalid_index2.has_value());
 }
+
+TEST_CASE("experiment")
+{
+  std::vector<int> ids = {4, 3, 5, 0, 2, 1};
+
+  thh::handle_vector_t<int> handle_vector;
+  for (int i = 0; i < ids.size(); ++i) {
+    handle_vector.add(i);
+  }
+
+  // for (const auto& v : handle_vector) {
+  //   MESSAGE("&d ", v);
+  // }
+
+  handle_vector.sort([&handle_vector, &ids](int32_t lhs, int32_t rhs) {
+    // auto lh = handle_vector.handle_from_index(lhs);
+    // auto rh = handle_vector.handle_from_index(rhs);
+
+    // auto lvo = handle_vector.call_return(lh, [](const auto& v) { return v;
+    // }); auto rvo = handle_vector.call_return(rh, [](const auto& v) { return
+    // v; });
+
+    // if (lvo.has_value() && rvo.has_value()) {
+    //   return *lvo < *rvo;
+    // }
+
+    if (ids[lhs] < ids[rhs]) {
+      return true;
+    }
+
+    return false;
+  });
+
+  // for (const auto& v : handle_vector) {
+  //   MESSAGE("&d ", v);
+  // }
+}
