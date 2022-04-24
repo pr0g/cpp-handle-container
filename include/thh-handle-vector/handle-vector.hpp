@@ -65,7 +65,7 @@ namespace thh
     // explicit alignment padding variable
     int32_t padding_unused_ = 0;
 
-    // increases the number of availble handles when the underlying container of
+    // increases the number of available handles when the underlying container of
     // elements (T) grows (the capacity increases)
     void try_allocate_handles();
 
