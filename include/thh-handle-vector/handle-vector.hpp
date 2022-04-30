@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <cassert>
 #include <limits>
+#include <numeric>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
-#include <numeric>
 
 namespace thh
 {
@@ -66,10 +66,12 @@ namespace thh
     // explicit alignment padding variable
     int32_t padding_unused_ = 0;
 
-    // increases the number of available handles when the underlying container of
-    // elements (T) grows (the capacity increases)
+    // increases the number of available handles when the underlying container
+    // of elements (T) grows (the capacity increases)
     void try_allocate_handles();
-
+    // after sorting or partitioning the container, ensures handles refer to the
+    // same value as before
+    void fixup_handles(const std::vector<int32_t>& indices);
     // returns a mutable pointer to the underlying element T referenced by the
     // handle
     [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);
@@ -130,6 +132,12 @@ namespace thh
     std::optional<int32_t> index_from_handle(typed_handle_t<Tag> handle) const;
     // returns if the container has any elements or not
     [[nodiscard]] bool empty() const;
+    // returns mutable reference to element at position
+    // note: position must be in range (0 <= position < size)
+    T& operator[](int32_t position);
+    // returns constant reference to element at position
+    // note: position must be in range (0 <= position < size)
+    const T& operator[](int32_t position) const;
     // returns an iterator to the beginning of the elements
     auto begin() -> iterator;
     // returns a const iterator to the beginning of the elements
@@ -145,9 +153,12 @@ namespace thh
     // returns an ascii representation of the currently allocated handles
     // note: useful for debugging purposes
     [[nodiscard]] std::string debug_handles() const;
-
+    // sorts elements in the container according to the provided comparison
     template<typename Compare>
-    void sort(Compare&& cmp);
+    void sort(Compare&& compare);
+    // partitions elements in the container according to the provided predicate
+    template<typename Predicate>
+    int32_t partition(Predicate&& predicate);
   };
 } // namespace thh
 

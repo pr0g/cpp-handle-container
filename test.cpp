@@ -889,39 +889,100 @@ TEST_CASE("EmptyOptionalReturnedWithInvalidHandle")
   CHECK(!invalid_index2.has_value());
 }
 
-TEST_CASE("experiment")
+TEST_CASE("AfterSortElementsAreIteratedInSortedOrder")
 {
-  std::vector<int> ids = {4, 3, 5, 0, 2, 1};
-
   thh::handle_vector_t<int> handle_vector;
-  for (int i = 0; i < ids.size(); ++i) {
-    handle_vector.add(i);
+  for (int i = 0; i < 10; ++i) {
+    handle_vector.add(10 - i);
   }
 
-  // for (const auto& v : handle_vector) {
-  //   MESSAGE("&d ", v);
-  // }
+  for (int i = 0; i < 10; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
 
-  handle_vector.sort([&handle_vector, &ids](int32_t lhs, int32_t rhs) {
-    // auto lh = handle_vector.handle_from_index(lhs);
-    // auto rh = handle_vector.handle_from_index(rhs);
-
-    // auto lvo = handle_vector.call_return(lh, [](const auto& v) { return v;
-    // }); auto rvo = handle_vector.call_return(rh, [](const auto& v) { return
-    // v; });
-
-    // if (lvo.has_value() && rvo.has_value()) {
-    //   return *lvo < *rvo;
-    // }
-
-    if (ids[lhs] < ids[rhs]) {
-      return true;
-    }
-
-    return false;
+  handle_vector.sort([&handle_vector](const int32_t lhs, const int32_t rhs) {
+    return handle_vector[lhs] < handle_vector[rhs];
   });
 
-  // for (const auto& v : handle_vector) {
-  //   MESSAGE("&d ", v);
-  // }
+  for (int i = 0; i < 10; ++i) {
+    CHECK(handle_vector[i] == (i + 1));
+  }
+}
+
+TEST_CASE("HandlesReferToSameElementsAfterSort")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(10 - i));
+  }
+
+  auto check_handles_fn = [&] {
+    for (int i = 0; i < 10; ++i) {
+      handle_vector.call(
+        handles[i], [i](const auto& element) { CHECK(element == (10 - i)); });
+    }
+  };
+
+  check_handles_fn();
+
+  handle_vector.sort([&handle_vector](const int32_t lhs, const int32_t rhs) {
+    return handle_vector[lhs] < handle_vector[rhs];
+  });
+
+  check_handles_fn();
+}
+
+TEST_CASE("AfterPartitionElementsPassingPredicateAreIteratedFirst")
+{
+  thh::handle_vector_t<int> handle_vector;
+  for (int i = 0; i < 10; ++i) {
+    handle_vector.add(10 - i);
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+
+  const auto second =
+    handle_vector.partition([&handle_vector](const int32_t index) {
+      return handle_vector[index] % 2 == 0;
+    });
+
+  // check first half
+  for (int i = 0; i < second; ++i) {
+    CHECK(handle_vector[i] % 2 == 0);
+  }
+
+  // check second half
+  for (int i = second; i < handle_vector.size(); ++i) {
+    CHECK(handle_vector[i] % 2 != 0);
+  }
+}
+
+TEST_CASE("HandlesReferToSameElementsAfterPartition")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(10 - i));
+  }
+
+  auto check_handles_fn = [&] {
+    for (int i = 0; i < 10; ++i) {
+      handle_vector.call(
+        handles[i], [i](const auto& element) { CHECK(element == (10 - i)); });
+    }
+  };
+
+  check_handles_fn();
+
+  for (int i = 0; i < handle_vector.size(); ++i) {
+    MESSAGE(handle_vector[i]);
+  }
+
+  handle_vector.partition(
+    [&handle_vector](const int32_t index) { return handle_vector[index] < 5; });
+
+  check_handles_fn();
 }
