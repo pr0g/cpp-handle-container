@@ -316,28 +316,31 @@ namespace thh
     // inspired by Raymond Chen, OldNewThing blog
     // https://devblogs.microsoft.com/oldnewthing/20170102-00/?p=95095
     template<typename... Iter>
-    void apply_permutation(std::vector<int>& indices, Iter... iters)
+    void apply_permutation(
+      const int32_t begin, const int32_t end, std::vector<int>& indices,
+      Iter... iters)
     {
       using std::swap;
-      const int32_t count = int32_t(indices.size());
-      for (int32_t i = 0; i < count; i++) {
+      for (int32_t i = begin; i < end; i++) {
         auto current = i;
-        while (i != indices[current]) {
-          auto next = indices[current];
-          ([&](const auto it) { swap(it[current], it[next]); }(iters), ...);
-          indices[current] = current;
+        while (i != indices[current - begin]) {
+          auto next = indices[current - begin];
+          ([&](const auto it) { swap(it[current - begin], it[next - begin]); }(
+             iters),
+           ...);
+          indices[current - begin] = current;
           current = next;
         }
-        indices[current] = current;
+        indices[current - begin] = current;
       }
     }
   } // namespace detail
 
   template<typename T, typename Tag>
   void handle_vector_t<T, Tag>::fixup_handles(
-    const std::vector<int32_t>& indices)
+    int32_t begin, int32_t end, const std::vector<int32_t>& indices)
   {
-    for (int32_t i = 0; i < size(); ++i) {
+    for (int32_t i = begin; i < end; ++i) {
       if (const auto other =
             std::find(indices.begin(), indices.end(), handles_[i].lookup_);
           other != indices.end()) {
@@ -350,11 +353,22 @@ namespace thh
   template<typename Compare>
   void handle_vector_t<T, Tag>::sort(Compare&& compare)
   {
-    std::vector<int32_t> indices(size());
-    std::iota(indices.begin(), indices.end(), 0);
-    std::sort(indices.begin(), indices.end(), compare);
-    fixup_handles(indices);
-    detail::apply_permutation(indices, elements_.begin(), element_ids_.begin());
+    sort(0, size(), std::forward<Compare>(compare));
+  }
+
+  template<typename T, typename Tag>
+  template<typename Compare>
+  void handle_vector_t<T, Tag>::sort(
+    const int32_t begin, const int32_t end, Compare&& compare)
+  {
+    const auto range = std::min(size() - begin, end - begin);
+    std::vector<int32_t> indices(range);
+    std::iota(indices.begin(), indices.end(), begin);
+    std::sort(indices.begin(), indices.end(), std::forward<Compare>(compare));
+    fixup_handles(begin, end, indices);
+    detail::apply_permutation(
+      begin, begin + range, indices, elements_.begin() + begin,
+      element_ids_.begin() + begin);
   }
 
   template<typename T, typename Tag>
@@ -365,8 +379,9 @@ namespace thh
     std::iota(indices.begin(), indices.end(), 0);
     const auto second =
       std::partition(indices.begin(), indices.end(), predicate);
-    fixup_handles(indices);
-    detail::apply_permutation(indices, elements_.begin(), element_ids_.begin());
+    fixup_handles(0, size(), indices);
+    detail::apply_permutation(
+      0, size(), indices, elements_.begin(), element_ids_.begin());
     return int32_t(second - indices.begin());
   }
 } // namespace thh

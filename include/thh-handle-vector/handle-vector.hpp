@@ -71,7 +71,9 @@ namespace thh
     void try_allocate_handles();
     // after sorting or partitioning the container, ensures handles refer to the
     // same value as before
-    void fixup_handles(const std::vector<int32_t>& indices);
+    // begin - inclusive, end - exclusive
+    void fixup_handles(
+      int32_t begin, int32_t end, const std::vector<int32_t>& indices);
     // returns a mutable pointer to the underlying element T referenced by the
     // handle
     [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);
@@ -156,6 +158,11 @@ namespace thh
     // sorts elements in the container according to the provided comparison
     template<typename Compare>
     void sort(Compare&& compare);
+    // sorts elements in the container in the specified range according to the
+    // provided comparison
+    // begin - inclusive, end - exclusive
+    template<typename Compare>
+    void sort(int32_t begin, int32_t end, Compare&& compare);
     // partitions elements in the container according to the provided predicate
     template<typename Predicate>
     int32_t partition(Predicate&& predicate);

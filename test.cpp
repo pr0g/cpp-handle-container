@@ -977,12 +977,65 @@ TEST_CASE("HandlesReferToSameElementsAfterPartition")
 
   check_handles_fn();
 
-  for (int i = 0; i < handle_vector.size(); ++i) {
-    MESSAGE(handle_vector[i]);
-  }
-
   handle_vector.partition(
     [&handle_vector](const int32_t index) { return handle_vector[index] < 5; });
 
   check_handles_fn();
+}
+
+TEST_CASE("MiddleSubsetOfContainerCanBeSorted")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(10 - i));
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+
+  handle_vector.sort(
+    3, 8, [&handle_vector](const int32_t lhs, const int32_t rhs) {
+      return handle_vector[lhs] < handle_vector[rhs];
+    });
+
+  for (int i = 0; i < 3; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+
+  for (int i = 3; i < 8; ++i) {
+    CHECK(handle_vector[i] == i);
+  }
+
+  for (int i = 8; i < 10; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+}
+
+TEST_CASE("EndSubsetOfContainerCanBeSorted")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(10 - i));
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+
+  handle_vector.sort(
+    5, 20 /*size larger than container*/,
+    [&handle_vector](const int32_t lhs, const int32_t rhs) {
+      return handle_vector[lhs] < handle_vector[rhs];
+    });
+
+  for (int i = 0; i < 5; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+
+  for (int i = 5; i < 10; ++i) {
+    CHECK(handle_vector[i] == i - 4);
+  }
 }
