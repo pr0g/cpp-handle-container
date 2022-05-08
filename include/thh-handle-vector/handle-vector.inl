@@ -341,11 +341,7 @@ namespace thh
     const int32_t begin, const int32_t end, const std::vector<int32_t>& indices)
   {
     for (int32_t i = begin; i < end; ++i) {
-      if (const auto other =
-            std::find(indices.begin(), indices.end(), handles_[i].lookup_);
-          other != indices.end()) {
-        handles_[i].lookup_ = int32_t(std::distance(indices.begin(), other));
-      }
+      handles_[element_ids_[i - begin]].lookup_ = indices[i - begin];
     }
   }
 
