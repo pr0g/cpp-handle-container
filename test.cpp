@@ -1039,3 +1039,44 @@ TEST_CASE("EndSubsetOfContainerCanBeSorted")
     CHECK(handle_vector[i] == i - 4);
   }
 }
+
+TEST_CASE("HandlesReferToSameElementsAfterPartialSort")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(10 - i));
+  }
+
+  {
+    int32_t expected = 10;
+    for (const auto handle : handles) {
+      handle_vector.call(handle, [&expected](const int& value) {
+        CHECK(value == expected);
+        expected--;
+      });
+    }
+  }
+
+  handle_vector.sort(
+    0, 5, [&handle_vector](const int32_t lhs, const int32_t rhs) {
+      return handle_vector[lhs] < handle_vector[rhs];
+    });
+
+  // check sort happened correctly
+  for (int i = 0; i < 5; ++i) {
+    CHECK(handle_vector[i] == i + 6);
+  }
+
+  // iterating via handles will still visit elements in the same order (sorting
+  // does not effect handles)
+  {
+    int32_t expected = 10;
+    for (const auto handle : handles) {
+      handle_vector.call(handle, [&expected](const int& value) {
+        CHECK(value == expected);
+        expected--;
+      });
+    }
+  }
+}
