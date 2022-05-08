@@ -338,7 +338,7 @@ namespace thh
 
   template<typename T, typename Tag>
   void handle_vector_t<T, Tag>::fixup_handles(
-    int32_t begin, int32_t end, const std::vector<int32_t>& indices)
+    const int32_t begin, const int32_t end, const std::vector<int32_t>& indices)
   {
     for (int32_t i = begin; i < end; ++i) {
       if (const auto other =
