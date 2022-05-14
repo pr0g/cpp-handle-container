@@ -164,6 +164,7 @@ namespace thh
     template<typename Compare>
     void sort(int32_t begin, int32_t end, Compare&& compare);
     // partitions elements in the container according to the provided predicate
+    // returns index of the first element for the second group
     template<typename Predicate>
     int32_t partition(Predicate&& predicate);
   };
