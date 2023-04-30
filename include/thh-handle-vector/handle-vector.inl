@@ -338,10 +338,10 @@ namespace thh
 
   template<typename T, typename Tag>
   void handle_vector_t<T, Tag>::fixup_handles(
-    const int32_t begin, const int32_t end, const std::vector<int32_t>& indices)
+    const int32_t begin, const int32_t end)
   {
     for (int32_t i = begin; i < end; ++i) {
-      handles_[element_ids_[i - begin]].lookup_ = indices[i - begin];
+      handles_[element_ids_[i - begin]].lookup_ = i - begin;
     }
   }
 
@@ -361,10 +361,10 @@ namespace thh
     std::vector<int32_t> indices(range);
     std::iota(indices.begin(), indices.end(), begin);
     std::sort(indices.begin(), indices.end(), std::forward<Compare>(compare));
-    fixup_handles(begin, end, indices);
     detail::apply_permutation(
       begin, begin + range, indices, elements_.begin() + begin,
       element_ids_.begin() + begin);
+    fixup_handles(begin, begin + range);
   }
 
   template<typename T, typename Tag>
@@ -373,11 +373,11 @@ namespace thh
   {
     std::vector<int32_t> indices(size());
     std::iota(indices.begin(), indices.end(), 0);
-    const auto second =
-      std::partition(indices.begin(), indices.end(), predicate);
-    fixup_handles(0, size(), indices);
+    const auto second = std::partition(
+      indices.begin(), indices.end(), std::forward<Predicate>(predicate));
     detail::apply_permutation(
       0, size(), indices, elements_.begin(), element_ids_.begin());
+    fixup_handles(0, size());
     return int32_t(second - indices.begin());
   }
 } // namespace thh

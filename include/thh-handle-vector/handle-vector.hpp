@@ -72,8 +72,7 @@ namespace thh
     // after sorting or partitioning the container, ensures handles refer to the
     // same value as before
     // begin - inclusive, end - exclusive
-    void fixup_handles(
-      int32_t begin, int32_t end, const std::vector<int32_t>& indices);
+    void fixup_handles(int32_t begin, int32_t end);
     // returns a mutable pointer to the underlying element T referenced by the
     // handle
     [[nodiscard]] T* resolve(typed_handle_t<Tag> handle);

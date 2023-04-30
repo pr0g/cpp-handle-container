@@ -1080,3 +1080,57 @@ TEST_CASE("HandlesReferToSameElementsAfterPartialSort")
     }
   }
 }
+
+TEST_CASE("HandleFixupErrorOrderSort")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  handles.push_back(handle_vector.add(1234));
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(i));
+  }
+
+  auto check_handles_fn = [&] {
+    handle_vector.call(
+      handles[0], [](const auto& element) { CHECK(element == 1234); });
+    for (int i = 1; i < 11; ++i) {
+      handle_vector.call(
+        handles[i], [i](const auto& element) { CHECK(element == i - 1); });
+    }
+  };
+
+  check_handles_fn();
+
+  handle_vector.sort([&handle_vector](const int32_t lhs, const int32_t rhs) {
+    return handle_vector[lhs] < handle_vector[rhs];
+  });
+
+  check_handles_fn();
+}
+
+TEST_CASE("HandleFixupErrorOrderPartition")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  handles.push_back(handle_vector.add(1234));
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(i));
+  }
+
+  auto check_handles_fn = [&] {
+    handle_vector.call(
+      handles[0], [](const auto& element) { CHECK(element == 1234); });
+    for (int i = 1; i < 11; ++i) {
+      handle_vector.call(
+        handles[i], [i](const auto& element) { CHECK(element == i - 1); });
+    }
+  };
+
+  check_handles_fn();
+
+  handle_vector.partition([&handle_vector](const int32_t elem) {
+    return handle_vector[elem] != 1234;
+  });
+
+  check_handles_fn();
+}

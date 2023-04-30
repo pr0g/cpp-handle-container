@@ -16,7 +16,7 @@ if (THH_HANDLE_ENABLE_TEST)
   FetchContent_Declare(
     doctest
     GIT_REPOSITORY https://github.com/onqtam/doctest.git
-    GIT_TAG f0ab4e793fa863d4a5929ff263ddd3bebec8767e)
+    GIT_TAG ae7a13539fb71f270b87eb2e874fbac80bc8dda2)
   FetchContent_MakeAvailable(doctest)
   add_executable(${PROJECT_NAME}-test)
   target_sources(${PROJECT_NAME}-test PRIVATE test.cpp)
