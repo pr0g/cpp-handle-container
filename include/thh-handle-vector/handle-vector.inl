@@ -274,6 +274,24 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  auto handle_vector_t<T, Tag>::rbegin() -> reverse_iterator
+  {
+    return elements_.rbegin();
+  }
+
+  template<typename T, typename Tag>
+  auto handle_vector_t<T, Tag>::rbegin() const -> const_reverse_iterator
+  {
+    return elements_.rbegin();
+  }
+
+  template<typename T, typename Tag>
+  auto handle_vector_t<T, Tag>::crbegin() const -> const_reverse_iterator
+  {
+    return elements_.crbegin();
+  }
+
+  template<typename T, typename Tag>
   auto handle_vector_t<T, Tag>::end() -> iterator
   {
     return elements_.end();
@@ -289,6 +307,24 @@ namespace thh
   auto handle_vector_t<T, Tag>::cend() const -> const_iterator
   {
     return elements_.cend();
+  }
+
+  template<typename T, typename Tag>
+  auto handle_vector_t<T, Tag>::rend() -> reverse_iterator
+  {
+    return elements_.rend();
+  }
+
+  template<typename T, typename Tag>
+  auto handle_vector_t<T, Tag>::rend() const -> const_reverse_iterator
+  {
+    return elements_.rend();
+  }
+
+  template<typename T, typename Tag>
+  auto handle_vector_t<T, Tag>::crend() const -> const_reverse_iterator
+  {
+    return elements_.crend();
   }
 
   template<typename T, typename Tag>

@@ -83,6 +83,9 @@ namespace thh
   public:
     using iterator = typename decltype(elements_)::iterator;
     using const_iterator = typename decltype(elements_)::const_iterator;
+    using reverse_iterator = typename decltype(elements_)::reverse_iterator;
+    using const_reverse_iterator =
+      typename decltype(elements_)::const_reverse_iterator;
 
     // creates an element T in-place and returns a handle to it
     // note: args allow arguments to be passed directly to the type constructor
@@ -145,12 +148,24 @@ namespace thh
     auto begin() const -> const_iterator;
     // returns a const iterator to the beginning of the elements
     auto cbegin() const -> const_iterator;
+    // returns a reverse iterator to the last element
+    auto rbegin() -> reverse_iterator;
+    // returns a const reverse iterator to the last element
+    auto rbegin() const -> const_reverse_iterator;
+    // returns a const reverse iterator to the last element
+    auto crbegin() const -> const_reverse_iterator;
     // returns an iterator to the end of the elements
     auto end() -> iterator;
     // returns a const iterator to the end of the elements
     auto end() const -> const_iterator;
     // returns a const iterator to the end of the elements
     auto cend() const -> const_iterator;
+    // returns a reverse iterator to one before the first element
+    auto rend() -> reverse_iterator;
+    // returns a const reverse iterator to one before the first element
+    auto rend() const -> const_reverse_iterator;
+    // returns a const reverse iterator to one before the first element
+    auto crend() const -> const_reverse_iterator;
     // returns an ascii representation of the currently allocated handles
     // note: useful for debugging purposes
     [[nodiscard]] std::string debug_handles() const;
