@@ -86,6 +86,9 @@ namespace thh
     using reverse_iterator = typename decltype(elements_)::reverse_iterator;
     using const_reverse_iterator =
       typename decltype(elements_)::const_reverse_iterator;
+    using value_type = typename decltype(elements_)::value_type;
+    using reference = typename decltype(elements_)::reference;
+    using const_reference = typename decltype(elements_)::const_reference;
 
     // creates an element T in-place and returns a handle to it
     // note: args allow arguments to be passed directly to the type constructor
@@ -142,6 +145,10 @@ namespace thh
     // returns constant reference to element at position
     // note: position must be in range (0 <= position < size)
     const T& operator[](int32_t position) const;
+    // returns a pointer to the underlying element storage
+    T* data();
+    // returns a const pointer to the underlying element storage
+    const T* data() const;
     // returns an iterator to the beginning of the elements
     auto begin() -> iterator;
     // returns a const iterator to the beginning of the elements

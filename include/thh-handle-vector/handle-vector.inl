@@ -256,6 +256,19 @@ namespace thh
   }
 
   template<typename T, typename Tag>
+  T* handle_vector_t<T, Tag>::data()
+  {
+    return const_cast<T*>(
+      static_cast<const handle_vector_t<T, Tag>&>(*this).data());
+  }
+
+  template<typename T, typename Tag>
+  const T* handle_vector_t<T, Tag>::data() const
+  {
+    return elements_.data();
+  }
+
+  template<typename T, typename Tag>
   auto handle_vector_t<T, Tag>::begin() -> iterator
   {
     return elements_.begin();

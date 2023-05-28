@@ -1134,3 +1134,34 @@ TEST_CASE("HandleFixupErrorOrderPartition")
 
   check_handles_fn();
 }
+
+TEST_CASE("DataReturnsPointerToFirstElement")
+{
+  thh::handle_vector_t<char> handle_vector;
+  thh::handle_t handle = handle_vector.add('a');
+  char* a = *handle_vector.call_return(handle, [](char& a) { return &a; });
+  CHECK(a == handle_vector.data());
+}
+
+TEST_CASE("ConstDataReturnsPointerToFirstElement")
+{
+  thh::handle_vector_t<char> handle_vector;
+  thh::handle_t handle = handle_vector.add('a');
+  [handle](const auto& handle_vec) {
+    const char* a =
+      *handle_vec.call_return(handle, [](const char& a) { return &a; });
+    CHECK(a == handle_vec.data());
+  }(handle_vector);
+}
+
+TEST_CASE("DataReturnsNullptrWhenContainerIsEmpty")
+{
+  thh::handle_vector_t<char> handle_vector;
+  CHECK(handle_vector.data() == nullptr);
+}
+
+TEST_CASE("ConstDataReturnsNullptrWhenContainerIsEmpty")
+{
+  const thh::handle_vector_t<char> handle_vector;
+  CHECK(handle_vector.data() == nullptr);
+}
