@@ -251,7 +251,7 @@ namespace thh
   template<typename T, typename Tag>
   const T& handle_vector_t<T, Tag>::operator[](const int32_t position) const
   {
-    assert(position <= elements_.size());
+    assert(position <= static_cast<int64_t>(elements_.size()));
     return elements_[position];
   }
 
