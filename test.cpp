@@ -1139,7 +1139,7 @@ TEST_CASE("DataReturnsPointerToFirstElement")
 {
   thh::handle_vector_t<char> handle_vector;
   thh::handle_t handle = handle_vector.add('a');
-  char* a = *handle_vector.call_return(handle, [](char& a) { return &a; });
+  char* a = *handle_vector.call_return(handle, [](char& a_) { return &a_; });
   CHECK(a == handle_vector.data());
 }
 
@@ -1149,7 +1149,7 @@ TEST_CASE("ConstDataReturnsPointerToFirstElement")
   thh::handle_t handle = handle_vector.add('a');
   [handle](const auto& handle_vec) {
     const char* a =
-      *handle_vec.call_return(handle, [](const char& a) { return &a; });
+      *handle_vec.call_return(handle, [](const char& a_) { return &a_; });
     CHECK(a == handle_vec.data());
   }(handle_vector);
 }
