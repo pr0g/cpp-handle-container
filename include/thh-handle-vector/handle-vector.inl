@@ -1,43 +1,47 @@
 namespace thh
 {
-  template<typename Tag>
+  template<typename Tag, typename Index, typename Gen>
   bool operator==(
-    const typed_handle_t<Tag>& lhs, const typed_handle_t<Tag>& rhs)
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs)
   {
     return lhs.gen_ == rhs.gen_ && lhs.id_ == rhs.id_;
   }
 
-  template<typename Tag>
+  template<typename Tag, typename Index, typename Gen>
   bool operator!=(
-    const typed_handle_t<Tag>& lhs, const typed_handle_t<Tag>& rhs)
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs)
   {
     return !(lhs == rhs);
   }
 
-  template<typename T, typename Tag>
-  void handle_vector_t<T, Tag>::try_allocate_handles()
+  template<typename T, typename Tag, typename Index, typename Gen>
+  void handle_vector_t<T, Tag, Index, Gen>::try_allocate_handles()
   {
     if (handles_.size() < elements_.capacity()) {
       const auto last_handle_size = handles_.size();
       handles_.resize(elements_.capacity());
-      assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+      assert(handles_.size() <= std::numeric_limits<Index>::max());
       for (size_t i = last_handle_size; i < handles_.size(); i++) {
-        assert(i < std::numeric_limits<int32_t>::max() - 1);
-        const auto handle_index = static_cast<int32_t>(i);
-        handles_[handle_index].handle_ = typed_handle_t<Tag>(handle_index, -1);
+        assert(i < std::numeric_limits<Index>::max() - 1);
+        const auto handle_index = static_cast<Index>(i);
+        handles_[handle_index].handle_ =
+          typed_handle_t<Tag, Index, Gen>(handle_index, -1);
         handles_[handle_index].lookup_ = -1;
         handles_[handle_index].next_ = handle_index + 1;
       }
     }
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename... Args>
-  typed_handle_t<Tag> handle_vector_t<T, Tag>::add(Args&&... args)
+  typed_handle_t<Tag, Index, Gen> handle_vector_t<T, Tag, Index, Gen>::add(
+    Args&&... args)
   {
-    assert(elements_.size() <= std::numeric_limits<int32_t>::max());
+    assert(elements_.size() <= std::numeric_limits<Index>::max());
 
-    const auto index = static_cast<int32_t>(elements_.size());
+    const auto index = static_cast<Index>(elements_.size());
 
     // allocate new element
     elements_.emplace_back(std::forward<Args>(args)...);
@@ -50,7 +54,7 @@ namespace thh
     // map handle to newly allocated element
     handles_[next_].lookup_ = index;
     // increment the generation of the handle
-    typed_handle_t<Tag>* handle = &handles_[next_].handle_;
+    typed_handle_t<Tag, Index, Gen>* handle = &handles_[next_].handle_;
     handle->gen_++;
 
     // map the element back to the handle it's bound to
@@ -61,29 +65,30 @@ namespace thh
     return *handle;
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename Fn>
-  void handle_vector_t<T, Tag>::call(const typed_handle_t<Tag> handle, Fn&& fn)
+  void handle_vector_t<T, Tag, Index, Gen>::call(
+    const typed_handle_t<Tag, Index, Gen> handle, Fn&& fn)
   {
     if (T* element = resolve(handle)) {
       fn(*element);
     }
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename Fn>
-  void handle_vector_t<T, Tag>::call(
-    const typed_handle_t<Tag> handle, Fn&& fn) const
+  void handle_vector_t<T, Tag, Index, Gen>::call(
+    const typed_handle_t<Tag, Index, Gen> handle, Fn&& fn) const
   {
     if (const T* element = resolve(handle)) {
       fn(*element);
     }
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename Fn>
-  decltype(auto) handle_vector_t<T, Tag>::call_return(
-    typed_handle_t<Tag> handle, Fn&& fn)
+  decltype(auto) handle_vector_t<T, Tag, Index, Gen>::call_return(
+    typed_handle_t<Tag, Index, Gen> handle, Fn&& fn)
   {
     if (T* element = resolve(handle)) {
       return std::optional(fn(*element));
@@ -91,10 +96,10 @@ namespace thh
     return std::optional<decltype(fn(*(static_cast<T*>(nullptr))))>{};
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename Fn>
-  decltype(auto) handle_vector_t<T, Tag>::call_return(
-    typed_handle_t<Tag> handle, Fn&& fn) const
+  decltype(auto) handle_vector_t<T, Tag, Index, Gen>::call_return(
+    typed_handle_t<Tag, Index, Gen> handle, Fn&& fn) const
   {
     if (const T* element = resolve(handle)) {
       return std::optional(fn(*element));
@@ -102,12 +107,13 @@ namespace thh
     return std::optional<decltype(fn(*(static_cast<const T*>(nullptr))))>{};
   }
 
-  template<typename T, typename Tag>
-  bool handle_vector_t<T, Tag>::has(const typed_handle_t<Tag> handle) const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  bool handle_vector_t<T, Tag, Index, Gen>::has(
+    const typed_handle_t<Tag, Index, Gen> handle) const
   {
-    assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+    assert(handles_.size() <= std::numeric_limits<Index>::max());
 
-    if (handle.id_ >= static_cast<int32_t>(handles_.size())) {
+    if (handle.id_ >= static_cast<Index>(handles_.size())) {
       return false;
     }
 
@@ -121,8 +127,9 @@ namespace thh
     return ih.handle_.gen_ == handle.gen_ && ih.lookup_ != -1;
   }
 
-  template<typename T, typename Tag>
-  bool handle_vector_t<T, Tag>::remove(const typed_handle_t<Tag> handle)
+  template<typename T, typename Tag, typename Index, typename Gen>
+  bool handle_vector_t<T, Tag, Index, Gen>::remove(
+    const typed_handle_t<Tag, Index, Gen> handle)
   {
     assert(element_ids_.size() == elements_.size());
 
@@ -153,24 +160,24 @@ namespace thh
     return true;
   }
 
-  template<typename T, typename Tag>
-  int32_t handle_vector_t<T, Tag>::size() const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  Index handle_vector_t<T, Tag, Index, Gen>::size() const
   {
     assert(element_ids_.size() == elements_.size());
-    assert(elements_.size() <= std::numeric_limits<int32_t>::max());
-    return static_cast<int32_t>(elements_.size());
+    assert(elements_.size() <= std::numeric_limits<Index>::max());
+    return static_cast<Index>(elements_.size());
   }
 
-  template<typename T, typename Tag>
-  int32_t handle_vector_t<T, Tag>::capacity() const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  Index handle_vector_t<T, Tag, Index, Gen>::capacity() const
   {
-    assert(handles_.size() <= std::numeric_limits<int32_t>::max());
-    return static_cast<int32_t>(handles_.size());
+    assert(handles_.size() <= std::numeric_limits<Index>::max());
+    return static_cast<Index>(handles_.size());
   }
 
-  template<typename T, typename Tag>
-  const T* handle_vector_t<T, Tag>::resolve(
-    const typed_handle_t<Tag> handle) const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  const T* handle_vector_t<T, Tag, Index, Gen>::resolve(
+    const typed_handle_t<Tag, Index, Gen> handle) const
   {
     if (!has(handle)) {
       return nullptr;
@@ -178,15 +185,16 @@ namespace thh
     return &elements_[handles_[handle.id_].lookup_];
   }
 
-  template<typename T, typename Tag>
-  T* handle_vector_t<T, Tag>::resolve(const typed_handle_t<Tag> handle)
+  template<typename T, typename Tag, typename Index, typename Gen>
+  T* handle_vector_t<T, Tag, Index, Gen>::resolve(
+    const typed_handle_t<Tag, Index, Gen> handle)
   {
     return const_cast<T*>(
       static_cast<const handle_vector_t&>(*this).resolve(handle));
   }
 
-  template<typename T, typename Tag>
-  void handle_vector_t<T, Tag>::reserve(const int32_t capacity)
+  template<typename T, typename Tag, typename Index, typename Gen>
+  void handle_vector_t<T, Tag, Index, Gen>::reserve(const Index capacity)
   {
     assert(capacity > 0);
 
@@ -196,10 +204,10 @@ namespace thh
     try_allocate_handles();
   }
 
-  template<typename T, typename Tag>
-  void handle_vector_t<T, Tag>::clear()
+  template<typename T, typename Tag, typename Index, typename Gen>
+  void handle_vector_t<T, Tag, Index, Gen>::clear()
   {
-    assert(handles_.size() <= std::numeric_limits<int32_t>::max());
+    assert(handles_.size() <= std::numeric_limits<Index>::max());
 
     elements_.clear();
     element_ids_.clear();
@@ -208,25 +216,25 @@ namespace thh
     // handles cannot be used again with the container)
     for (size_t i = 0; i < handles_.size(); i++) {
       handles_[i].lookup_ = -1;
-      handles_[i].next_ = static_cast<int32_t>(i) + 1;
+      handles_[i].next_ = static_cast<Index>(i) + 1;
     }
 
     next_ = 0;
   }
 
-  template<typename T, typename Tag>
-  typed_handle_t<Tag> handle_vector_t<T, Tag>::handle_from_index(
-    const int32_t index) const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  typed_handle_t<Tag, Index, Gen> handle_vector_t<
+    T, Tag, Index, Gen>::handle_from_index(const Index index) const
   {
-    if (index < 0 || index >= static_cast<int32_t>(element_ids_.size())) {
-      return typed_handle_t<Tag>{};
+    if (index < 0 || index >= static_cast<Index>(element_ids_.size())) {
+      return typed_handle_t<Tag, Index, Gen>{};
     }
     return handles_[element_ids_[index]].handle_;
   }
 
-  template<typename T, typename Tag>
-  std::optional<int32_t> handle_vector_t<T, Tag>::index_from_handle(
-    const typed_handle_t<Tag> handle) const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  std::optional<Index> handle_vector_t<T, Tag, Index, Gen>::index_from_handle(
+    const typed_handle_t<Tag, Index, Gen> handle) const
   {
     if (!has(handle)) {
       return std::nullopt;
@@ -234,120 +242,126 @@ namespace thh
     return handles_[handle.id_].lookup_;
   }
 
-  template<typename T, typename Tag>
-  bool handle_vector_t<T, Tag>::empty() const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  bool handle_vector_t<T, Tag, Index, Gen>::empty() const
   {
     assert(elements_.empty() == element_ids_.empty());
     return elements_.empty();
   }
 
-  template<typename T, typename Tag>
-  T& handle_vector_t<T, Tag>::operator[](const int32_t position)
+  template<typename T, typename Tag, typename Index, typename Gen>
+  T& handle_vector_t<T, Tag, Index, Gen>::operator[](const Index position)
   {
     return const_cast<T&>(
-      static_cast<const handle_vector_t<T, Tag>&>(*this).operator[](position));
+      static_cast<const handle_vector_t<T, Tag, Index, Gen>&>(*this).operator[](
+        position));
   }
 
-  template<typename T, typename Tag>
-  const T& handle_vector_t<T, Tag>::operator[](const int32_t position) const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  const T& handle_vector_t<T, Tag, Index, Gen>::operator[](
+    const Index position) const
   {
     assert(position <= static_cast<int64_t>(elements_.size()));
     return elements_[position];
   }
 
-  template<typename T, typename Tag>
-  T* handle_vector_t<T, Tag>::data()
+  template<typename T, typename Tag, typename Index, typename Gen>
+  T* handle_vector_t<T, Tag, Index, Gen>::data()
   {
     return const_cast<T*>(
-      static_cast<const handle_vector_t<T, Tag>&>(*this).data());
+      static_cast<const handle_vector_t<T, Tag, Index, Gen>&>(*this).data());
   }
 
-  template<typename T, typename Tag>
-  const T* handle_vector_t<T, Tag>::data() const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  const T* handle_vector_t<T, Tag, Index, Gen>::data() const
   {
     return elements_.data();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::begin() -> iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::begin() -> iterator
   {
     return elements_.begin();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::begin() const -> const_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::begin() const -> const_iterator
   {
     return elements_.begin();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::cbegin() const -> const_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::cbegin() const -> const_iterator
   {
     return elements_.cbegin();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::rbegin() -> reverse_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::rbegin() -> reverse_iterator
   {
     return elements_.rbegin();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::rbegin() const -> const_reverse_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::rbegin() const
+    -> const_reverse_iterator
   {
     return elements_.rbegin();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::crbegin() const -> const_reverse_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::crbegin() const
+    -> const_reverse_iterator
   {
     return elements_.crbegin();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::end() -> iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::end() -> iterator
   {
     return elements_.end();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::end() const -> const_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::end() const -> const_iterator
   {
     return elements_.end();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::cend() const -> const_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::cend() const -> const_iterator
   {
     return elements_.cend();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::rend() -> reverse_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::rend() -> reverse_iterator
   {
     return elements_.rend();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::rend() const -> const_reverse_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::rend() const
+    -> const_reverse_iterator
   {
     return elements_.rend();
   }
 
-  template<typename T, typename Tag>
-  auto handle_vector_t<T, Tag>::crend() const -> const_reverse_iterator
+  template<typename T, typename Tag, typename Index, typename Gen>
+  auto handle_vector_t<T, Tag, Index, Gen>::crend() const
+    -> const_reverse_iterator
   {
     return elements_.crend();
   }
 
-  template<typename T, typename Tag>
-  std::string handle_vector_t<T, Tag>::debug_handles() const
+  template<typename T, typename Tag, typename Index, typename Gen>
+  std::string handle_vector_t<T, Tag, Index, Gen>::debug_handles() const
   {
     constexpr const char filled_glyph[] = "[o]";
     constexpr const char empty_glyph[] = "[x]";
 
     std::string buffer;
-    for (int32_t i = 0; i < capacity(); i++) {
+    for (Index i = 0; i < capacity(); i++) {
       const char* glyph = nullptr;
       if (handles_[i].lookup_ == -1) {
         glyph = empty_glyph;
@@ -364,13 +378,13 @@ namespace thh
   {
     // inspired by Raymond Chen, OldNewThing blog
     // https://devblogs.microsoft.com/oldnewthing/20170102-00/?p=95095
-    template<typename... Iter>
+    template<typename Index, typename... Iter>
     void apply_permutation(
-      const int32_t begin, const int32_t end, std::vector<int>& indices,
+      const Index begin, const Index end, std::vector<int>& indices,
       Iter... iters)
     {
       using std::swap;
-      for (int32_t i = begin; i < end; i++) {
+      for (Index i = begin; i < end; i++) {
         auto current = i;
         while (i != indices[current - begin]) {
           auto next = indices[current - begin];
@@ -385,29 +399,29 @@ namespace thh
     }
   } // namespace detail
 
-  template<typename T, typename Tag>
-  void handle_vector_t<T, Tag>::fixup_handles(
-    const int32_t begin, const int32_t end)
+  template<typename T, typename Tag, typename Index, typename Gen>
+  void handle_vector_t<T, Tag, Index, Gen>::fixup_handles(
+    const Index begin, const Index end)
   {
-    for (int32_t i = begin; i < end; ++i) {
+    for (Index i = begin; i < end; ++i) {
       handles_[element_ids_[i - begin]].lookup_ = i - begin;
     }
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename Compare>
-  void handle_vector_t<T, Tag>::sort(Compare&& compare)
+  void handle_vector_t<T, Tag, Index, Gen>::sort(Compare&& compare)
   {
     sort(0, size(), std::forward<Compare>(compare));
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename Compare>
-  void handle_vector_t<T, Tag>::sort(
-    const int32_t begin, const int32_t end, Compare&& compare)
+  void handle_vector_t<T, Tag, Index, Gen>::sort(
+    const Index begin, const Index end, Compare&& compare)
   {
     const auto range = std::min(size() - begin, end - begin);
-    std::vector<int32_t> indices(range);
+    std::vector<Index> indices(range);
     std::iota(indices.begin(), indices.end(), begin);
     std::sort(indices.begin(), indices.end(), std::forward<Compare>(compare));
     detail::apply_permutation(
@@ -416,17 +430,17 @@ namespace thh
     fixup_handles(begin, begin + range);
   }
 
-  template<typename T, typename Tag>
+  template<typename T, typename Tag, typename Index, typename Gen>
   template<typename Predicate>
-  int32_t handle_vector_t<T, Tag>::partition(Predicate&& predicate)
+  Index handle_vector_t<T, Tag, Index, Gen>::partition(Predicate&& predicate)
   {
-    std::vector<int32_t> indices(size());
+    std::vector<Index> indices(size());
     std::iota(indices.begin(), indices.end(), 0);
     const auto second = std::partition(
       indices.begin(), indices.end(), std::forward<Predicate>(predicate));
     detail::apply_permutation(
       0, size(), indices, elements_.begin(), element_ids_.begin());
     fixup_handles(0, size());
-    return int32_t(second - indices.begin());
+    return Index(second - indices.begin());
   }
 } // namespace thh
