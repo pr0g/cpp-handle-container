@@ -75,8 +75,8 @@ namespace thh
 
     // index of the next handle to be allocated
     Index next_ = 0;
-    // explicit alignment padding variable
-    Index padding_unused_ = 0;
+    // number of handles that are depleted (generation is at its limit)
+    Index depleted_handles_ = 0;
 
     // increases the number of available handles when the underlying container
     // of elements (T) grows (the capacity increases)

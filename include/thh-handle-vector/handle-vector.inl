@@ -19,12 +19,13 @@ namespace thh
   template<typename T, typename Tag, typename Index, typename Gen>
   void handle_vector_t<T, Tag, Index, Gen>::try_allocate_handles()
   {
-    if (handles_.size() < elements_.capacity()) {
+    if (handles_.size() - depleted_handles_ < elements_.capacity()) {
       const auto last_handle_size = handles_.size();
-      handles_.resize(elements_.capacity());
-      assert(handles_.size() <= std::numeric_limits<Index>::max());
+      const auto handle_count = elements_.capacity() + depleted_handles_;
+      assert(handle_count <= std::numeric_limits<Index>::max());
+      handles_.resize(handle_count);
       for (size_t i = last_handle_size; i < handles_.size(); i++) {
-        assert(i < std::numeric_limits<Index>::max() - 1);
+        assert(i <= std::numeric_limits<Index>::max());
         const auto handle_index = static_cast<Index>(i);
         handles_[handle_index].handle_ =
           typed_handle_t<Tag, Index, Gen>(handle_index, -1);
@@ -39,9 +40,9 @@ namespace thh
   typed_handle_t<Tag, Index, Gen> handle_vector_t<T, Tag, Index, Gen>::add(
     Args&&... args)
   {
-    assert(elements_.size() <= std::numeric_limits<Index>::max());
-
     const auto index = static_cast<Index>(elements_.size());
+
+    assert(index <= std::numeric_limits<Index>::max());
 
     // allocate new element
     elements_.emplace_back(std::forward<Args>(args)...);
@@ -51,11 +52,22 @@ namespace thh
     // elements
     try_allocate_handles();
 
-    // map handle to newly allocated element
-    handles_[next_].lookup_ = index;
+    while (handles_[next_].handle_.gen_ == std::numeric_limits<Gen>::max()) {
+      // skip handle for allocation if generation has reached its limit
+      next_ = handles_[next_].next_;
+      depleted_handles_++;
+    }
+
+    // if several handles have been depleted, create additional handles for
+    // available element capacity
+    try_allocate_handles();
+
     // increment the generation of the handle
     typed_handle_t<Tag, Index, Gen>* handle = &handles_[next_].handle_;
     handle->gen_++;
+
+    // map handle to newly allocated element
+    handles_[next_].lookup_ = index;
 
     // map the element back to the handle it's bound to
     element_ids_[index] = handle->id_;
@@ -219,6 +231,7 @@ namespace thh
       handles_[i].next_ = static_cast<Index>(i) + 1;
     }
 
+    depleted_handles_ = 0;
     next_ = 0;
   }
 
@@ -359,11 +372,14 @@ namespace thh
   {
     constexpr const char filled_glyph[] = "[o]";
     constexpr const char empty_glyph[] = "[x]";
+    constexpr const char depleted_glyph[] = "[!]";
 
     std::string buffer;
     for (Index i = 0; i < capacity(); i++) {
       const char* glyph = nullptr;
-      if (handles_[i].lookup_ == -1) {
+      if (handles_[i].handle_.gen_ == std::numeric_limits<Gen>::max()) {
+        glyph = depleted_glyph;
+      } else if (handles_[i].lookup_ == -1) {
         glyph = empty_glyph;
       } else {
         glyph = filled_glyph;

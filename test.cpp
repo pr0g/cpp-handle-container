@@ -900,7 +900,7 @@ TEST_CASE("AfterSortElementsAreIteratedInSortedOrder")
     CHECK(handle_vector[i] == (10 - i));
   }
 
-  handle_vector.sort([&handle_vector](const int32_t lhs, const int32_t rhs) {
+  handle_vector.sort([&handle_vector](const auto lhs, const auto rhs) {
     return handle_vector[lhs] < handle_vector[rhs];
   });
 
@@ -926,7 +926,7 @@ TEST_CASE("HandlesReferToSameElementsAfterSort")
 
   check_handles_fn();
 
-  handle_vector.sort([&handle_vector](const int32_t lhs, const int32_t rhs) {
+  handle_vector.sort([&handle_vector](const auto lhs, const auto rhs) {
     return handle_vector[lhs] < handle_vector[rhs];
   });
 
@@ -945,7 +945,7 @@ TEST_CASE("AfterPartitionElementsPassingPredicateAreIteratedFirst")
   }
 
   const auto second =
-    handle_vector.partition([&handle_vector](const int32_t index) {
+    handle_vector.partition([&handle_vector](const auto index) {
       return handle_vector[index] % 2 == 0;
     });
 
@@ -978,7 +978,7 @@ TEST_CASE("HandlesReferToSameElementsAfterPartition")
   check_handles_fn();
 
   handle_vector.partition(
-    [&handle_vector](const int32_t index) { return handle_vector[index] < 5; });
+    [&handle_vector](const auto index) { return handle_vector[index] < 5; });
 
   check_handles_fn();
 }
@@ -995,10 +995,9 @@ TEST_CASE("MiddleSubsetOfContainerCanBeSorted")
     CHECK(handle_vector[i] == (10 - i));
   }
 
-  handle_vector.sort(
-    3, 8, [&handle_vector](const int32_t lhs, const int32_t rhs) {
-      return handle_vector[lhs] < handle_vector[rhs];
-    });
+  handle_vector.sort(3, 8, [&handle_vector](const auto lhs, const auto rhs) {
+    return handle_vector[lhs] < handle_vector[rhs];
+  });
 
   for (int i = 0; i < 3; ++i) {
     CHECK(handle_vector[i] == (10 - i));
@@ -1027,7 +1026,7 @@ TEST_CASE("EndSubsetOfContainerCanBeSorted")
 
   handle_vector.sort(
     5, 20 /*size larger than container*/,
-    [&handle_vector](const int32_t lhs, const int32_t rhs) {
+    [&handle_vector](const auto lhs, const auto rhs) {
       return handle_vector[lhs] < handle_vector[rhs];
     });
 
@@ -1058,10 +1057,9 @@ TEST_CASE("HandlesReferToSameElementsAfterPartialSort")
     }
   }
 
-  handle_vector.sort(
-    0, 5, [&handle_vector](const int32_t lhs, const int32_t rhs) {
-      return handle_vector[lhs] < handle_vector[rhs];
-    });
+  handle_vector.sort(0, 5, [&handle_vector](const auto lhs, const auto rhs) {
+    return handle_vector[lhs] < handle_vector[rhs];
+  });
 
   // check sort happened correctly
   for (int i = 0; i < 5; ++i) {
@@ -1101,7 +1099,7 @@ TEST_CASE("HandleFixupErrorOrderSort")
 
   check_handles_fn();
 
-  handle_vector.sort([&handle_vector](const int32_t lhs, const int32_t rhs) {
+  handle_vector.sort([&handle_vector](const auto lhs, const auto rhs) {
     return handle_vector[lhs] < handle_vector[rhs];
   });
 
@@ -1128,9 +1126,8 @@ TEST_CASE("HandleFixupErrorOrderPartition")
 
   check_handles_fn();
 
-  handle_vector.partition([&handle_vector](const int32_t elem) {
-    return handle_vector[elem] != 1234;
-  });
+  handle_vector.partition(
+    [&handle_vector](const auto elem) { return handle_vector[elem] != 1234; });
 
   check_handles_fn();
 }
@@ -1164,4 +1161,113 @@ TEST_CASE("ConstDataReturnsNullptrWhenContainerIsEmpty")
 {
   const thh::handle_vector_t<char> handle_vector;
   CHECK(handle_vector.data() == nullptr);
+}
+
+TEST_CASE("GenerationWrapRemovesAvailableHandle")
+{
+  thh::handle_vector_t<char, thh::default_tag_t, int8_t, int8_t> handle_vector;
+  auto original_handle = handle_vector.add();
+
+  handle_vector.remove(original_handle);
+  for (int i = 0; i < std::numeric_limits<int8_t>::max(); i++) {
+    auto temp_handle = handle_vector.add();
+    handle_vector.remove(temp_handle);
+  }
+
+  auto wrapped_handle = handle_vector.add();
+  CHECK(wrapped_handle.id_ != 0);
+  CHECK(wrapped_handle.id_ == 1);
+  CHECK(wrapped_handle.gen_ == 0);
+  CHECK(original_handle != wrapped_handle);
+}
+
+TEST_CASE("HandleStaysDepletedAfterClear")
+{
+  thh::handle_vector_t<char, thh::default_tag_t, int8_t, int8_t> handle_vector;
+
+  // use up first handle
+  for (int i = 0; i <= std::numeric_limits<int8_t>::max(); i++) {
+    auto temp_handle = handle_vector.add();
+    handle_vector.remove(temp_handle);
+  }
+
+  // use up second handle
+  for (int i = 0; i <= std::numeric_limits<int8_t>::max(); i++) {
+    auto temp_handle = handle_vector.add();
+    handle_vector.remove(temp_handle);
+  }
+
+  handle_vector.clear();
+
+  // ensure depleted handles are not used
+  auto wrapped_handle = handle_vector.add();
+  CHECK(wrapped_handle.id_ != 0);
+  CHECK(wrapped_handle.id_ == 2);
+  CHECK(wrapped_handle.gen_ == 0);
+}
+
+TEST_CASE("AssertFiresIfAllHandlesAreUsedUpWhenAttemptingToAllocateAnother")
+{
+  thh::handle_vector_t<char, thh::default_tag_t, int8_t, int8_t> handle_vector;
+  handle_vector.reserve(std::numeric_limits<int8_t>::max());
+
+  std::vector<thh::typed_handle_t<thh::default_tag_t, int8_t, int8_t>> handles;
+  // repeat so all generations are used up
+  for (int outer = 0; outer <= std::numeric_limits<int8_t>::max(); outer++) {
+    // use all handles
+    for (int i = 0; i < std::numeric_limits<int8_t>::max(); i++) {
+      handles.push_back(handle_vector.add());
+    }
+    // free all handles
+    for (int i = 0; i < std::numeric_limits<int8_t>::max(); i++) {
+      handle_vector.remove(handles[i]);
+    }
+    handles.clear();
+  }
+
+  handle_vector.clear();
+
+  // asserts - not currently possible to enable unfortunately
+  // handle_vector.add();
+}
+
+TEST_CASE("AdditionalHandlesWillBeAllocatedIfExistingGenerationsDeplete")
+{
+  thh::handle_vector_t<char, thh::default_tag_t, int16_t, int8_t> handle_vector;
+  handle_vector.reserve(std::numeric_limits<int8_t>::max());
+
+  std::vector<thh::typed_handle_t<thh::default_tag_t, int16_t, int8_t>> handles;
+  // repeat so all generations are used up
+  for (int outer = 0; outer <= std::numeric_limits<int8_t>::max(); outer++) {
+    // use all handles
+    for (int i = 0; i < std::numeric_limits<int8_t>::max(); i++) {
+      handles.push_back(handle_vector.add());
+    }
+    // free all handles
+    for (int i = 0; i < std::numeric_limits<int8_t>::max(); i++) {
+      handle_vector.remove(handles[i]);
+    }
+    handles.clear();
+  }
+
+  handle_vector.clear();
+
+  // add more handles
+  for (int i = 0; i < std::numeric_limits<int8_t>::max(); i++) {
+    handles.push_back(handle_vector.add());
+  }
+
+  // verify size (elements) and capacity (handles)
+  CHECK(handle_vector.size() == std::numeric_limits<int8_t>::max());
+  CHECK(handle_vector.capacity() == std::numeric_limits<int8_t>::max() * 2);
+
+  for (const auto& handle : handles) {
+    handle_vector.remove(handle);
+  }
+  handles.clear();
+
+  // remove elements, verify size (elements) and capacity (handles)
+  CHECK(handle_vector.empty());
+  CHECK(handle_vector.size() == 0);
+  CHECK(handle_vector.capacity() == std::numeric_limits<int8_t>::max() * 2);
 }
