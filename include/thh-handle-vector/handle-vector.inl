@@ -370,13 +370,13 @@ namespace thh
   template<typename T, typename Tag, typename Index, typename Gen>
   std::string handle_vector_t<T, Tag, Index, Gen>::debug_handles() const
   {
-    constexpr const char filled_glyph[] = "[o]";
-    constexpr const char empty_glyph[] = "[x]";
-    constexpr const char depleted_glyph[] = "[!]";
+    constexpr std::string_view filled_glyph = "[o]";
+    constexpr std::string_view empty_glyph = "[x]";
+    constexpr std::string_view depleted_glyph = "[!]";
 
     std::string buffer;
     for (Index i = 0; i < capacity(); i++) {
-      const char* glyph = nullptr;
+      std::string_view glyph;
       if (handles_[i].handle_.gen_ == std::numeric_limits<Gen>::max()) {
         glyph = depleted_glyph;
       } else if (handles_[i].lookup_ == -1) {
