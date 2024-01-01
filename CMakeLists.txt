@@ -33,7 +33,8 @@ if(THH_HANDLE_ENABLE_TEST)
             -Wextra
             -pedantic
             -Wno-c++98-compat;-Wno-
-            -Wno-sign-conversion;-Wno->
+            -Wno-sign-conversion;-Wno-
+            -Wno-padded;-Wno->
             $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wall
             -Wextra
             -pedantic>)
