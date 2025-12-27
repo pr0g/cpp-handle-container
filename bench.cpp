@@ -6,7 +6,7 @@ static void add_element(benchmark::State& state)
 {
   thh::handle_vector_t<int> handle_vector;
   for ([[maybe_unused]] auto _ : state) {
-    const thh::handle_t handle = handle_vector.add();
+    thh::handle_t handle = handle_vector.add();
     benchmark::DoNotOptimize(handle);
     benchmark::ClobberMemory();
   }
@@ -19,7 +19,7 @@ static void add_element_with_reserve(benchmark::State& state)
   thh::handle_vector_t<int> handle_vector;
   handle_vector.reserve(8);
   for ([[maybe_unused]] auto _ : state) {
-    const thh::handle_t handle = handle_vector.add();
+    thh::handle_t handle = handle_vector.add();
     benchmark::DoNotOptimize(handle);
     benchmark::ClobberMemory();
   }
@@ -30,7 +30,7 @@ BENCHMARK(add_element_with_reserve);
 static void remove_element(benchmark::State& state)
 {
   thh::handle_vector_t<int> handle_vector;
-  const thh::handle_t handle = handle_vector.add();
+  thh::handle_t handle = handle_vector.add();
   for ([[maybe_unused]] auto _ : state) {
     handle_vector.remove(handle);
     benchmark::ClobberMemory();
@@ -44,7 +44,8 @@ static void has_element_present(benchmark::State& state)
   thh::handle_vector_t<int> handle_vector;
   thh::handle_t handle = handle_vector.add();
   for ([[maybe_unused]] auto _ : state) {
-    benchmark::DoNotOptimize(handle_vector.has(handle));
+    bool has = handle_vector.has(handle);
+    benchmark::DoNotOptimize(has);
   }
 }
 
@@ -56,7 +57,8 @@ static void has_element_not_present(benchmark::State& state)
   thh::handle_t handle = handle_vector.add();
   handle_vector.remove(handle);
   for ([[maybe_unused]] auto _ : state) {
-    benchmark::DoNotOptimize(handle_vector.has(handle));
+    bool has = handle_vector.has(handle);
+    benchmark::DoNotOptimize(has);
   }
 }
 
@@ -67,7 +69,7 @@ static void resolve(benchmark::State& state)
   thh::handle_vector_t<int> handle_vector;
   thh::handle_t handle = handle_vector.add();
   for ([[maybe_unused]] auto _ : state) {
-    handle_vector.call(handle, [](const auto& element) {
+    handle_vector.call(handle, [](auto& element) {
       benchmark::DoNotOptimize(element);
       benchmark::ClobberMemory();
     });

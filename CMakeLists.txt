@@ -18,7 +18,7 @@ if(THH_HANDLE_ENABLE_TEST)
   FetchContent_Declare(
     doctest
     GIT_REPOSITORY https://github.com/onqtam/doctest.git
-    GIT_TAG ae7a13539fb71f270b87eb2e874fbac80bc8dda2)
+    GIT_TAG 1da23a3e8119ec5cce4f9388e91b065e20bf06f5)
   FetchContent_MakeAvailable(doctest)
   add_executable(${PROJECT_NAME}-test)
   target_sources(${PROJECT_NAME}-test PRIVATE test.cpp)
@@ -45,7 +45,7 @@ if(THH_HANDLE_ENABLE_BENCH)
   FetchContent_Declare(
     benchmark
     GIT_REPOSITORY https://github.com/google/benchmark.git
-    GIT_TAG 4b13b3d47a9ad3bb4b83bde3c3841b2b0b5c5789)
+    GIT_TAG 04ccbd86038796c319ea19987457e651a24f6b44)
   FetchContent_MakeAvailable(benchmark)
   add_executable(${PROJECT_NAME}-bench)
   target_sources(${PROJECT_NAME}-bench PRIVATE bench.cpp)
