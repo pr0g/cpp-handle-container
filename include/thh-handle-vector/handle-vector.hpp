@@ -75,7 +75,8 @@ namespace thh
     std::vector<internal_handle_t> handles_;
 
     // index of the next handle to be allocated
-    Index next_ = 0;
+    Index dequeue_ = 0;
+    Index enqueue_ = 0;
     // number of handles that are depleted (generation is at its limit)
     Index depleted_handles_ = 0;
 

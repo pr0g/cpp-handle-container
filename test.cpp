@@ -307,12 +307,12 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
 
   thh::handle_t first_new_handle = handle_vector.add();
   buffer = handle_vector.debug_handles();
-  expected_buffer = "[x][x][x][x][o]";
+  expected_buffer = "[o][x][x][x][x]";
   CHECK(expected_buffer == buffer);
 
   thh::handle_t second_new_handle = handle_vector.add();
   buffer = handle_vector.debug_handles();
-  expected_buffer = "[x][x][x][o][o]";
+  expected_buffer = "[o][o][x][x][x]";
   CHECK(expected_buffer == buffer);
 
   const float* begin = nullptr;
@@ -544,8 +544,10 @@ TEST_CASE("ContainerGrowsCorrectlyAfterClear")
   handle_vector.remove(handles[5]);
 
   const thh::handle_t next_handle = handle_vector.add();
-  CHECK(next_handle.id_ == 5);
-  CHECK(next_handle.gen_ == 2);
+  // CHECK(next_handle.id_ == 5);
+  // CHECK(next_handle.gen_ == 2);
+  CHECK(next_handle.id_ == 18);
+  CHECK(next_handle.gen_ == 0);
 }
 
 TEST_CASE("HoldMoveOnlyType")

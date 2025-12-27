@@ -32,6 +32,7 @@ namespace thh
         handles_[handle_index].lookup_ = -1;
         handles_[handle_index].next_ = handle_index + 1;
       }
+      enqueue_ = static_cast<Index>(handles_.size() - 1);
     }
   }
 
@@ -52,9 +53,11 @@ namespace thh
     // elements
     try_allocate_handles();
 
-    while (handles_[next_].handle_.gen_ == std::numeric_limits<Gen>::max()) {
+    while (dequeue_ < static_cast<Index>(handles_.size())
+           && handles_[dequeue_].handle_.gen_
+                == std::numeric_limits<Gen>::max()) {
       // skip handle for allocation if generation has reached its limit
-      next_ = handles_[next_].next_;
+      dequeue_ = handles_[dequeue_].next_;
       depleted_handles_++;
     }
 
@@ -63,7 +66,7 @@ namespace thh
     try_allocate_handles();
 
     // increment the generation of the handle
-    auto& internal_handle = handles_[next_];
+    auto& internal_handle = handles_[dequeue_];
     assert(internal_handle.lookup_ == -1); // ensure handle is free
     auto& handle = internal_handle.handle_;
     handle.gen_++;
@@ -74,7 +77,7 @@ namespace thh
     // map the element back to the handle it's bound to
     element_ids_[index] = handle.id_;
     // update the next available handle
-    next_ = internal_handle.next_;
+    dequeue_ = internal_handle.next_;
 
     return handle;
   }
@@ -166,8 +169,18 @@ namespace thh
     // free handle being removed (make ready for reuse)
     internal_handle.lookup_ = -1;
     // lifo queue
-    internal_handle.next_ = next_;
-    next_ = handle.id_;
+
+    if (handle.id_ != enqueue_) {
+      handles_[enqueue_].next_ = handle.id_;
+    }
+    enqueue_ = handle.id_;
+
+    if (dequeue_ == static_cast<Index>(handles_.size())) {
+      dequeue_ = enqueue_;
+    }
+
+    // internal_handle.next_ = dequeue_;
+    // dequeue_ = handle.id_;
 
     // remove the last element (the element that was removed after the swap)
     element_ids_.pop_back();
@@ -236,7 +249,8 @@ namespace thh
     }
 
     depleted_handles_ = 0;
-    next_ = 0;
+    dequeue_ = 0;
+    enqueue_ = static_cast<Index>(handles_.size() - 1);
   }
 
   template<typename T, typename Tag, typename Index, typename Gen>
