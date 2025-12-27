@@ -63,18 +63,19 @@ namespace thh
     try_allocate_handles();
 
     // increment the generation of the handle
-    typed_handle_t<Tag, Index, Gen>* handle = &handles_[next_].handle_;
-    handle->gen_++;
+    auto& internal_handle = handles_[next_];
+    auto& handle = internal_handle.handle_;
+    handle.gen_++;
 
     // map handle to newly allocated element
-    handles_[next_].lookup_ = index;
+    internal_handle.lookup_ = index;
 
     // map the element back to the handle it's bound to
-    element_ids_[index] = handle->id_;
+    element_ids_[index] = handle.id_;
     // update the next available handle
-    next_ = handles_[next_].next_;
+    next_ = internal_handle.next_;
 
-    return *handle;
+    return handle;
   }
 
   template<typename T, typename Tag, typename Index, typename Gen>
@@ -150,20 +151,21 @@ namespace thh
     }
 
     using std::swap;
-    const size_t back = element_ids_.size() - 1;
+    auto& internal_handle = handles_[handle.id_];
+    auto& lookup = internal_handle.lookup_;
     // find the handle of the last element currently stored and have it
     // point to the look-up of the element about to be removed
-    handles_[element_ids_[back]].lookup_ = handles_[handle.id_].lookup_;
+    handles_[element_ids_.back()].lookup_ = lookup;
     // swap the last element with the element being removed
-    swap(elements_[handles_[handle.id_].lookup_], elements_[back]);
+    swap(elements_[lookup], elements_.back());
     // swap the last element id with the element id being removed
     // (the element_ and element_ids_ vector have a one to one mapping)
-    swap(element_ids_[handles_[handle.id_].lookup_], element_ids_[back]);
+    swap(element_ids_[lookup], element_ids_.back());
 
     // free handle being removed (make ready for reuse)
-    handles_[handle.id_].lookup_ = -1;
+    internal_handle.lookup_ = -1;
     // lifo queue
-    handles_[handle.id_].next_ = next_;
+    internal_handle.next_ = next_;
     next_ = handle.id_;
 
     // remove the last element (the element that was removed after the swap)
