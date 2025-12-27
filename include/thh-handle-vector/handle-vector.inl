@@ -162,6 +162,7 @@ namespace thh
 
     // free handle being removed (make ready for reuse)
     handles_[handle.id_].lookup_ = -1;
+    // lifo queue
     handles_[handle.id_].next_ = next_;
     next_ = handle.id_;
 
