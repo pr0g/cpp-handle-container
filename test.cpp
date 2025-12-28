@@ -4,6 +4,7 @@
 #include "thh-handle-vector/handle-vector.hpp"
 
 #include <numeric>
+#include <random>
 
 TEST_CASE("CanAllocContainer")
 {
@@ -1297,4 +1298,45 @@ TEST_CASE("GenerationIncreasesAreSpreadEvenlyAcrossHandles")
   for (const auto& handle : handles) {
     CHECK(handle.gen_ == 2);
   }
+}
+
+TEST_CASE("")
+{
+  const auto letters =
+    std::array{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
+  const auto handles_count = 10;
+  thh::handle_vector_t<char> handle_vector;
+  handle_vector.reserve(handles_count);
+
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < handles_count; i++) {
+    handles.push_back(handle_vector.add(letters[i]));
+  }
+
+  std::mt19937 gen(1);
+  std::shuffle(handles.begin(), handles.end(), gen);
+
+  handles.push_back(handle_vector.add('k'));
+
+  for (const auto handle : handles) {
+    handle_vector.remove(handle);
+  }
+  handles.clear();
+
+  for (int i = 0; i < handles_count; i++) {
+    handles.push_back(handle_vector.add(letters[i]));
+  }
+
+  {
+    int i = 0;
+    for (const auto handle : handles) {
+      const auto letter_from_handle = handle_vector.call_return(
+        handle, [](const char& c) mutable { return c; });
+      CHECK(letter_from_handle == letters[i++]);
+    }
+  }
+
+  handles.push_back(handle_vector.add('k'));
+  handle_vector.call(
+    handles.back(), [](const char& c) mutable { CHECK(c == 'k'); });
 }
