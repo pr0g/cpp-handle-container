@@ -64,6 +64,7 @@ namespace thh
 
     // increment the generation of the handle
     auto& internal_handle = handles_[next_];
+    assert(internal_handle.lookup_ == -1); // ensure handle is free
     auto& handle = internal_handle.handle_;
     handle.gen_++;
 
