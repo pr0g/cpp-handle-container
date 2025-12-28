@@ -32,6 +32,7 @@ namespace thh
         handles_[handle_index].lookup_ = -1;
         handles_[handle_index].next_ = handle_index + 1;
       }
+      dequeue_ = static_cast<Index>(last_handle_size);
       enqueue_ = static_cast<Index>(handles_.size() - 1);
     }
   }
@@ -54,11 +55,18 @@ namespace thh
     try_allocate_handles();
 
     while (dequeue_ < static_cast<Index>(handles_.size())
-           && handles_[dequeue_].handle_.gen_ == std::numeric_limits<Gen>::max()
-           && handles_[dequeue_].next_ != -1) {
+           && handles_[dequeue_].handle_.gen_
+                == std::numeric_limits<Gen>::max()) {
       // skip handle for allocation if generation has reached its limit
+      const auto dequeue_before = dequeue_;
       dequeue_ = handles_[dequeue_].next_;
       depleted_handles_++;
+      // ensure we don't get stuck in an infinite loop (may happen if we
+      // currently only have one handle and it uses up all its generations)
+      if (dequeue_before == dequeue_) {
+        dequeue_++;
+        break;
+      }
     }
 
     // if several handles have been depleted, create additional handles for
@@ -78,8 +86,6 @@ namespace thh
     element_ids_[index] = handle.id_;
     // update the next available handle
     dequeue_ = internal_handle.next_;
-    // this slot is now taken
-    internal_handle.next_ = -1;
 
     return handle;
   }
