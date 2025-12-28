@@ -54,8 +54,8 @@ namespace thh
     try_allocate_handles();
 
     while (dequeue_ < static_cast<Index>(handles_.size())
-           && handles_[dequeue_].handle_.gen_
-                == std::numeric_limits<Gen>::max()) {
+           && handles_[dequeue_].handle_.gen_ == std::numeric_limits<Gen>::max()
+           && handles_[dequeue_].next_ != -1) {
       // skip handle for allocation if generation has reached its limit
       dequeue_ = handles_[dequeue_].next_;
       depleted_handles_++;
@@ -78,6 +78,8 @@ namespace thh
     element_ids_[index] = handle.id_;
     // update the next available handle
     dequeue_ = internal_handle.next_;
+    // this slot is now taken
+    internal_handle.next_ = -1;
 
     return handle;
   }
@@ -156,35 +158,27 @@ namespace thh
 
     using std::swap;
     auto& internal_handle = handles_[handle.id_];
-    auto& lookup = internal_handle.lookup_;
+    const auto lookup = internal_handle.lookup_;
     // find the handle of the last element currently stored and have it
     // point to the look-up of the element about to be removed
     handles_[element_ids_.back()].lookup_ = lookup;
-    // swap the last element with the element being removed
+    // swap the last element with the element being removed and then pop_back
+    // (the element and element_ids vector have a one to one mapping)
     swap(elements_[lookup], elements_.back());
-    // swap the last element id with the element id being removed
-    // (the element_ and element_ids_ vector have a one to one mapping)
+    elements_.pop_back();
     swap(element_ids_[lookup], element_ids_.back());
+    element_ids_.pop_back();
 
     // free handle being removed (make ready for reuse)
     internal_handle.lookup_ = -1;
-    // lifo queue
 
-    if (handle.id_ != enqueue_) {
-      handles_[enqueue_].next_ = handle.id_;
-    }
+    handles_[handle.id_].next_ = handles_[enqueue_].next_;
+    handles_[enqueue_].next_ = handle.id_;
     enqueue_ = handle.id_;
 
     if (dequeue_ == static_cast<Index>(handles_.size())) {
       dequeue_ = enqueue_;
     }
-
-    // internal_handle.next_ = dequeue_;
-    // dequeue_ = handle.id_;
-
-    // remove the last element (the element that was removed after the swap)
-    element_ids_.pop_back();
-    elements_.pop_back();
 
     return true;
   }
