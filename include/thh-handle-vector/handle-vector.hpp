@@ -13,6 +13,15 @@
 
 namespace thh
 {
+  // forward declare handle_vector_t
+  template<typename T, typename Tag, typename Index, typename Gen>
+  class handle_vector_t;
+
+  // forward declare debug_handles friend function
+  template<typename T, typename Tag, typename Index, typename Gen>
+  [[nodiscard]] std::string debug_handles(
+    const handle_vector_t<T, Tag, Index, Gen>& handle_vector);
+
   // default tag to circumvent type safety
   struct default_tag_t
   {
@@ -190,9 +199,6 @@ namespace thh
     auto rend() const -> const_reverse_iterator;
     // returns a const reverse iterator to one before the first element
     auto crend() const -> const_reverse_iterator;
-    // returns an ascii representation of the currently allocated handles
-    // note: useful for debugging purposes
-    [[nodiscard]] std::string debug_handles() const;
     // sorts elements in the container according to the provided comparison
     template<typename Compare>
     void sort(Compare&& compare);
@@ -205,6 +211,11 @@ namespace thh
     // returns index of the first element for the second group
     template<typename Predicate>
     Index partition(Predicate&& predicate);
+
+    // returns an ascii representation of the currently allocated handles
+    // (useful for debugging purposes)
+    friend std::string debug_handles<T, Tag, Index, Gen>(
+      const handle_vector_t<T, Tag, Index, Gen>& handle_vector);
   };
 } // namespace thh
 

@@ -279,7 +279,7 @@ TEST_CASE("ContainerDebugVisualization")
   handle_vector.remove(handles[2]);
   handle_vector.remove(handles[0]);
 
-  const std::string buffer = handle_vector.debug_handles();
+  const std::string buffer = thh::debug_handles(handle_vector);
   const std::string expected_buffer = "[x][o][x][o][o]";
   CHECK(expected_buffer == buffer);
 }
@@ -303,18 +303,15 @@ TEST_CASE("EnsureHandlesReaddedInOrder")
     handle_vector.remove(handle);
   }
 
-  std::string buffer = handle_vector.debug_handles();
-  CHECK(expected_buffer == buffer);
+  CHECK(expected_buffer == thh::debug_handles(handle_vector));
 
   thh::handle_t first_new_handle = handle_vector.add();
-  buffer = handle_vector.debug_handles();
   expected_buffer = "[o][x][x][x][x]";
-  CHECK(expected_buffer == buffer);
+  CHECK(expected_buffer == thh::debug_handles(handle_vector));
 
   thh::handle_t second_new_handle = handle_vector.add();
-  buffer = handle_vector.debug_handles();
   expected_buffer = "[o][o][x][x][x]";
-  CHECK(expected_buffer == buffer);
+  CHECK(expected_buffer == thh::debug_handles(handle_vector));
 
   const float* begin = nullptr;
   handle_vector.call(

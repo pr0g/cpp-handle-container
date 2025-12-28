@@ -381,29 +381,6 @@ namespace thh
     return elements_.crend();
   }
 
-  template<typename T, typename Tag, typename Index, typename Gen>
-  std::string handle_vector_t<T, Tag, Index, Gen>::debug_handles() const
-  {
-    constexpr std::string_view filled_glyph = "[o]";
-    constexpr std::string_view empty_glyph = "[x]";
-    constexpr std::string_view depleted_glyph = "[!]";
-
-    std::string buffer;
-    for (Index i = 0; i < capacity(); i++) {
-      std::string_view glyph;
-      if (handles_[i].handle_.gen_ == std::numeric_limits<Gen>::max()) {
-        glyph = depleted_glyph;
-      } else if (handles_[i].lookup_ == -1) {
-        glyph = empty_glyph;
-      } else {
-        glyph = filled_glyph;
-      }
-      buffer.append(glyph);
-    }
-
-    return buffer;
-  }
-
   namespace detail
   {
     // inspired by Raymond Chen, OldNewThing blog
@@ -472,5 +449,31 @@ namespace thh
       Index(0), size(), indices, elements_.begin(), element_ids_.begin());
     fixup_handles(Index(0), size());
     return Index(second - indices.begin());
+  }
+
+  template<typename T, typename Tag, typename Index, typename Gen>
+  std::string debug_handles(
+    const handle_vector_t<T, Tag, Index, Gen>& handle_vector)
+  {
+    constexpr std::string_view filled_glyph = "[o]";
+    constexpr std::string_view empty_glyph = "[x]";
+    constexpr std::string_view depleted_glyph = "[!]";
+
+    const auto& handles = handle_vector.handles_;
+
+    std::string buffer;
+    for (Index i = 0; i < handle_vector.capacity(); i++) {
+      std::string_view glyph;
+      if (handles[i].handle_.gen_ == std::numeric_limits<Gen>::max()) {
+        glyph = depleted_glyph;
+      } else if (handles[i].lookup_ == -1) {
+        glyph = empty_glyph;
+      } else {
+        glyph = filled_glyph;
+      }
+      buffer.append(glyph);
+    }
+
+    return buffer;
   }
 } // namespace thh
