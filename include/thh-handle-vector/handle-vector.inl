@@ -138,16 +138,12 @@ namespace thh
   {
     assert(handles_.size() <= std::numeric_limits<Index>::max());
 
-    if (handle.id_ >= static_cast<Index>(handles_.size())) {
+    if (handle.id_ >= static_cast<Index>(handles_.size()) || handle.id_ == -1) {
       return false;
     }
 
-    if (handle.id_ == -1) {
-      return false;
-    }
-
-    // ensure the handle matches the one stored internally and is referencing a
-    // valid element
+    // ensure the handle matches the one stored internally
+    // and is referencing a valid element
     const internal_handle_t& ih = handles_[handle.id_];
     return ih.handle_.gen_ == handle.gen_ && ih.lookup_ != -1;
   }
