@@ -1234,11 +1234,10 @@ TEST_CASE("AssertFiresIfAllHandlesAreUsedUpWhenAttemptingToAllocateAnother")
 
 TEST_CASE("AdditionalHandlesWillBeAllocatedIfExistingGenerationsDeplete")
 {
-  thh::handle_vector_t<char, thh::default_tag_t, int16_t, int8_t>
-  handle_vector; handle_vector.reserve(std::numeric_limits<int8_t>::max());
+  thh::handle_vector_t<char, thh::default_tag_t, int16_t, int8_t> handle_vector;
+  handle_vector.reserve(std::numeric_limits<int8_t>::max());
 
-  std::vector<thh::typed_handle_t<thh::default_tag_t, int16_t, int8_t>>
-  handles;
+  std::vector<thh::typed_handle_t<thh::default_tag_t, int16_t, int8_t>> handles;
   // repeat so all generations are used up
   for (int outer = 0; outer <= std::numeric_limits<int8_t>::max(); outer++) {
     // use all handles
@@ -1274,94 +1273,28 @@ TEST_CASE("AdditionalHandlesWillBeAllocatedIfExistingGenerationsDeplete")
   CHECK(handle_vector.capacity() == std::numeric_limits<int8_t>::max() * 2);
 }
 
-TEST_CASE("Testing adding and removing")
+TEST_CASE("GenerationIncreasesAreSpreadEvenlyAcrossHandles")
 {
+  const auto handles_count = 10;
   thh::handle_vector_t<char> handle_vector;
-  handle_vector.reserve(10);
+  handle_vector.reserve(handles_count);
 
   std::vector<thh::handle_t> handles;
-  // for (auto c : {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'}) {
-  //   handles.push_back(handle_vector.add(c));
-  // }
-
-  for (int i = 0; i < 20; i++) {
-    // handle_vector.remove(handles.front());
-    // handles.erase(handles.begin());
+  // add and remove all handles twice
+  // generation move from -1 to 0, and then 0 to 1
+  for (int i = 0; i < handles_count * 2; i++) {
     handles.push_back(handle_vector.add());
-    MESSAGE(handle_vector.debug_handles());
     handle_vector.remove(handles.back());
     handles.pop_back();
-    MESSAGE(handle_vector.debug_handles());
+  }
+
+  for (int i = 0; i < handles_count; i++) {
     handles.push_back(handle_vector.add());
-    // handles.push_back(handle_vector.add());
-    // handles.push_back(handle_vector.add());
-    MESSAGE(handle_vector.debug_handles());
-    handle_vector.remove(handles.back());
-    handles.pop_back();
-    MESSAGE(handle_vector.debug_handles());
-    [[maybe_unused]] int check;
-    check = 0;
   }
 
-  [[maybe_unused]] int check;
-  check = 0;
-
-#if 0
-  MESSAGE(handle_vector.debug_handles());
-  for (const auto handle : handles) {
-    handle_vector.remove(handle);
+  // generation of all handles should be 2 (as we use a fifo stack for reusing
+  // each handle)
+  for (const auto& handle : handles) {
+    CHECK(handle.gen_ == 2);
   }
-  handles.clear();
-  MESSAGE(handle_vector.debug_handles());
-
-  MESSAGE("1");
-  handles.push_back(handle_vector.add('a'));
-  MESSAGE(handle_vector.debug_handles());
-
-  MESSAGE("2");
-  handles.push_back(handle_vector.add('b'));
-  MESSAGE(handle_vector.debug_handles());
-
-  MESSAGE("3");
-  handle_vector.remove(handles.front());
-  handles.erase(handles.begin());
-  // handle_vector.remove(handles.back());
-  // handles.pop_back();
-  MESSAGE(handle_vector.debug_handles());
-
-  MESSAGE("4");
-  handles.push_back(handle_vector.add('c'));
-  MESSAGE(handle_vector.debug_handles());
-
-  MESSAGE("5");
-  handles.push_back(handle_vector.add('d'));
-  MESSAGE(handle_vector.debug_handles());
-
-  MESSAGE("6");
-  handle_vector.remove(handles.back());
-  handles.pop_back();
-  MESSAGE(handle_vector.debug_handles());
-
-  MESSAGE("7");
-  handle_vector.remove(handles.back());
-  handles.pop_back();
-  MESSAGE(handle_vector.debug_handles());
-
-  for (int i = 0; i < 10; i++) {
-    handles.push_back(handle_vector.add('!'));
-    handle_vector.remove(handles.back());
-    handles.pop_back();
-    MESSAGE(handle_vector.debug_handles());
-  }
-
-  [[maybe_unused]] int a;
-  a = 0;
-
-#endif
-
-  // handle_vector.remove(handle);
-  // CHECK(!handle_vector.has(handle));
-  // CHECK(handle_vector.call_return(handle, [](const auto&) {
-  //   return true;
-  // }) == std::nullopt);
 }
