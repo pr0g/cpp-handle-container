@@ -70,7 +70,7 @@ namespace thh
     // maintains a reference to the next free handle
     struct internal_handle_t
     {
-      typed_handle_t<Tag, Index, Gen> handle_; // handle to be looked up
+      Gen gen_ = -1; // generation of handle to be looked up
       Index lookup_ = -1; // mapping to element
       Index next_ = -1; // index of next available handle
     };

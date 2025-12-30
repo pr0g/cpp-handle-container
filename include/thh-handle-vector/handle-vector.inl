@@ -27,8 +27,7 @@ namespace thh
       for (size_t i = last_handle_size; i < handles_.size(); i++) {
         assert(i <= std::numeric_limits<Index>::max());
         const auto handle_index = static_cast<Index>(i);
-        handles_[handle_index].handle_ =
-          typed_handle_t<Tag, Index, Gen>(handle_index, -1);
+        handles_[handle_index].gen_ = -1;
         handles_[handle_index].lookup_ = -1;
         handles_[handle_index].next_ = handle_index + 1;
       }
@@ -42,9 +41,9 @@ namespace thh
   typed_handle_t<Tag, Index, Gen> handle_vector_t<T, Tag, Index, Gen>::add(
     Args&&... args)
   {
-    const auto index = static_cast<Index>(elements_.size());
+    const auto lookup = static_cast<Index>(elements_.size());
 
-    assert(index <= std::numeric_limits<Index>::max());
+    assert(lookup <= std::numeric_limits<Index>::max());
 
     // allocate new element
     elements_.emplace_back(std::forward<Args>(args)...);
@@ -55,8 +54,7 @@ namespace thh
     try_allocate_handles();
 
     while (dequeue_ < static_cast<Index>(handles_.size())
-           && handles_[dequeue_].handle_.gen_
-                == std::numeric_limits<Gen>::max()) {
+           && handles_[dequeue_].gen_ == std::numeric_limits<Gen>::max()) {
       // skip handle for allocation if generation has reached its limit
       const auto dequeue_before = dequeue_;
       dequeue_ = handles_[dequeue_].next_;
@@ -73,21 +71,21 @@ namespace thh
     // available element capacity
     try_allocate_handles();
 
+    const auto index = dequeue_;
     // increment the generation of the handle
-    auto& internal_handle = handles_[dequeue_];
+    auto& internal_handle = handles_[index];
     assert(internal_handle.lookup_ == -1); // ensure handle is free
-    auto& handle = internal_handle.handle_;
-    handle.gen_++;
+    internal_handle.gen_++;
 
     // map handle to newly allocated element
-    internal_handle.lookup_ = index;
+    internal_handle.lookup_ = lookup;
 
     // map the element back to the handle it's bound to
-    element_ids_[index] = handle.id_;
+    element_ids_[lookup] = index;
     // update the next available handle
     dequeue_ = internal_handle.next_;
 
-    return handle;
+    return {index, internal_handle.gen_};
   }
 
   template<typename T, typename Tag, typename Index, typename Gen>
@@ -145,7 +143,7 @@ namespace thh
     // ensure the handle matches the one stored internally
     // and is referencing a valid element
     const internal_handle_t& ih = handles_[handle.id_];
-    return ih.handle_.gen_ == handle.gen_ && ih.lookup_ != -1;
+    return ih.gen_ == handle.gen_ && ih.lookup_ != -1;
   }
 
   template<typename T, typename Tag, typename Index, typename Gen>
@@ -256,7 +254,8 @@ namespace thh
     if (index < 0 || index >= static_cast<Index>(element_ids_.size())) {
       return typed_handle_t<Tag, Index, Gen>{};
     }
-    return handles_[element_ids_[index]].handle_;
+    const auto handle = element_ids_[index];
+    return {handle, handles_[handle].gen_};
   }
 
   template<typename T, typename Tag, typename Index, typename Gen>
@@ -464,7 +463,7 @@ namespace thh
     std::string buffer;
     for (Index i = 0; i < handle_vector.capacity(); i++) {
       std::string_view glyph;
-      if (handles[i].handle_.gen_ == std::numeric_limits<Gen>::max()) {
+      if (handles[i].gen_ == std::numeric_limits<Gen>::max()) {
         glyph = depleted_glyph;
       } else if (handles[i].lookup_ == -1) {
         glyph = empty_glyph;
