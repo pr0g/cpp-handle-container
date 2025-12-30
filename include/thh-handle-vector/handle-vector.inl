@@ -136,14 +136,15 @@ namespace thh
   {
     assert(handles_.size() <= std::numeric_limits<Index>::max());
 
-    if (handle.id_ >= static_cast<Index>(handles_.size()) || handle.id_ == -1) {
+    if (handle.id_ < 0 || handle.id_ >= static_cast<Index>(handles_.size())) {
       return false;
     }
 
     // ensure the handle matches the one stored internally
     // and is referencing a valid element
     const internal_handle_t& ih = handles_[handle.id_];
-    return ih.gen_ == handle.gen_ && ih.lookup_ != -1;
+    return ih.gen_ == handle.gen_ && ih.lookup_ >= 0
+        && ih.lookup_ < static_cast<Index>(elements_.size());
   }
 
   template<typename T, typename Tag, typename Index, typename Gen>

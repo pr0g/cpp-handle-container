@@ -76,6 +76,14 @@ TEST_CASE("ContainerDoesNotHaveHandleGen")
   CHECK(!handle_vector.has(other_handle));
 }
 
+TEST_CASE("ContainerDoesNotHaveOutOfRangeHandle")
+{
+  thh::handle_vector_t<char> handle_vector;
+  [[maybe_unused]] thh::handle_t handle = handle_vector.add();
+  thh::handle_t other_handle(-3, 0);
+  CHECK(!handle_vector.has(other_handle));
+}
+
 TEST_CASE("RemoveDecreasesSize")
 {
   thh::handle_vector_t<char> handle_vector;
