@@ -813,7 +813,7 @@ TEST_CASE("ContainerIsEmptyAfterRemove")
 TEST_CASE("ConstContainerEmptyCheck")
 {
   thh::handle_vector_t<int> handle_vector;
-  handle_vector.add();
+  [[maybe_unused]] const auto handle = handle_vector.add();
 
   handle_vector.clear();
 
@@ -862,9 +862,9 @@ TEST_CASE("HandleCanBeReturnedFromIndexWithRemovals")
 TEST_CASE("InvalidHandleReturnedWithOutOfRangeIndex")
 {
   thh::handle_vector_t<int> handle_vector;
-  handle_vector.add();
-  handle_vector.add();
-  handle_vector.add();
+  [[maybe_unused]] const auto handle_1 = handle_vector.add();
+  [[maybe_unused]] const auto handle_2 = handle_vector.add();
+  [[maybe_unused]] const auto handle_3 = handle_vector.add();
 
   const auto invalid_handle1 = handle_vector.handle_from_index(-1);
   const auto invalid_handle2 = handle_vector.handle_from_index(4);
@@ -876,8 +876,8 @@ TEST_CASE("InvalidHandleReturnedWithOutOfRangeIndex")
 TEST_CASE("EmptyOptionalReturnedWithInvalidHandle")
 {
   thh::handle_vector_t<int> handle_vector;
-  handle_vector.add();
-  handle_vector.add();
+  [[maybe_unused]] const auto handle_1 = handle_vector.add();
+  [[maybe_unused]] const auto handle_2 = handle_vector.add();
   const auto last_handle = handle_vector.add();
 
   handle_vector.remove(last_handle);
@@ -893,7 +893,7 @@ TEST_CASE("AfterSortElementsAreIteratedInSortedOrder")
 {
   thh::handle_vector_t<int> handle_vector;
   for (int i = 0; i < 10; ++i) {
-    handle_vector.add(10 - i);
+    [[maybe_unused]] const auto handle = handle_vector.add(10 - i);
   }
 
   for (int i = 0; i < 10; ++i) {
@@ -937,7 +937,7 @@ TEST_CASE("AfterPartitionElementsPassingPredicateAreIteratedFirst")
 {
   thh::handle_vector_t<int> handle_vector;
   for (int i = 0; i < 10; ++i) {
-    handle_vector.add(10 - i);
+    [[maybe_unused]] const auto handle = handle_vector.add(10 - i);
   }
 
   for (int i = 0; i < 10; ++i) {

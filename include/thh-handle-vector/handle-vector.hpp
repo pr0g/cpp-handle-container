@@ -118,7 +118,7 @@ namespace thh
     // note: args allow arguments to be passed directly to the type constructor
     // useful if the type does not support a default constructor
     template<typename... Args>
-    typed_handle_t<Tag, Index, Gen> add(Args&&... args);
+    [[nodiscard]] typed_handle_t<Tag, Index, Gen> add(Args&&... args);
     // invokes a callable object (usually a lambda) on a particular element in
     // the container
     template<typename Fn>
@@ -132,13 +132,14 @@ namespace thh
     // or an empty optional (as the handle may not have been successfully
     // resolved)
     template<typename Fn>
-    decltype(auto) call_return(typed_handle_t<Tag, Index, Gen> handle, Fn&& fn);
+    [[nodiscard]] decltype(auto) call_return(
+      typed_handle_t<Tag, Index, Gen> handle, Fn&& fn);
     // invokes a callable object (usually a lambda) on a particular element in
     // the container and returns a std::optional containing either the result
     // or an empty optional (as the handle may not have been successfully
     // resolved) (const overload)
     template<typename Fn>
-    decltype(auto) call_return(
+    [[nodiscard]] decltype(auto) call_return(
       typed_handle_t<Tag, Index, Gen> handle, Fn&& fn) const;
     // removes the element referenced by the handle
     // returns true if the element was removed, false otherwise (the handle was
@@ -158,10 +159,11 @@ namespace thh
     void clear();
     // returns the handle for a value at the given index
     // note: will return an invalid handle if the index is out of range
-    typed_handle_t<Tag, Index, Gen> handle_from_index(Index index) const;
+    [[nodiscard]] typed_handle_t<Tag, Index, Gen> handle_from_index(
+      Index index) const;
     // returns the index (position) of a value for a given handle
     // note: will return an empty optional if the handle is invalid
-    std::optional<Index> index_from_handle(
+    [[nodiscard]] std::optional<Index> index_from_handle(
       typed_handle_t<Tag, Index, Gen> handle) const;
     // returns if the container has any elements or not
     [[nodiscard]] bool empty() const;
