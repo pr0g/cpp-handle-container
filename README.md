@@ -2,7 +2,7 @@
 
 ## Overview
 
-> For an overview of this library and the techniques used, check out the article __[Handle Lookup Container (Sparse Set)](https://tomhultonharrop.com/c++/lookup/handle/2024/01/07/handle-lookup-container.html)__.
+> For an overview of this library and the techniques used, check out the article __[Handle Lookup Container (Sparse Set)](https://tomhultonharrop.com/posts/handle-lookup-container/)__.
 
 Following on from [c-handle-container](https://github.com/pr0g/c-handle-container), this library builds on the same ideas but supports a dynamic number of elements without a fixed capacity and is templated so arbitrary types can stored.
 
