@@ -49,8 +49,8 @@ namespace thh
     elements_.emplace_back(std::forward<Args>(args)...);
     element_ids_.emplace_back();
 
-    // if backing store increased, create additional handles for newly available
-    // elements
+    // if backing store increased, create additional
+    // handles for newly available elements
     try_allocate_handles();
 
     while (dequeue_ < static_cast<Index>(handles_.size())

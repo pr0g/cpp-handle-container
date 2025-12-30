@@ -1305,7 +1305,7 @@ TEST_CASE("GenerationIncreasesAreSpreadEvenlyAcrossHandles")
   }
 }
 
-TEST_CASE("")
+TEST_CASE("StableOrderingOfElementsAfterAdditionAndRemoval")
 {
   const auto letters =
     std::array{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
