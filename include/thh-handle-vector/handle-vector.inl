@@ -391,17 +391,16 @@ namespace thh
       Iter... iters)
     {
       using std::swap;
-      for (Index i = begin; i < end; i++) {
+      const auto range = end - begin;
+      for (Index i = 0; i < range; i++) {
         auto current = i;
-        while (i != indices[current - begin]) {
-          auto next = indices[current - begin];
-          ([&](const auto it) { swap(it[current - begin], it[next - begin]); }(
-             iters),
-           ...);
-          indices[current - begin] = current;
+        while (i != indices[current]) {
+          auto next = indices[current];
+          ([&](const auto it) { swap(it[current], it[next]); }(iters), ...);
+          indices[current] = current;
           current = next;
         }
-        indices[current - begin] = current;
+        indices[current] = current;
       }
     }
   } // namespace detail
@@ -429,7 +428,7 @@ namespace thh
   {
     const auto range = std::min(size() - begin, end - begin);
     std::vector<Index> indices(range);
-    std::iota(indices.begin(), indices.end(), begin);
+    std::iota(indices.begin(), indices.end(), 0);
     std::sort(indices.begin(), indices.end(), std::forward<Compare>(compare));
     detail::apply_permutation<Index>(
       begin, begin + range, indices, elements_.begin() + begin,
