@@ -46,13 +46,17 @@ namespace thh
     typed_handle_t(const Index id, const Gen gen) : id_(id), gen_(gen) {}
   };
 
-  // handle equality operators
+  // handle comparison operators
   template<typename Tag, typename Index, typename Gen>
   bool operator==(
     const typed_handle_t<Tag, Index, Gen>& lhs,
     const typed_handle_t<Tag, Index, Gen>& rhs);
   template<typename Tag, typename Index, typename Gen>
   bool operator!=(
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs);
+  template<typename Tag, typename Index, typename Gen>
+  bool operator<(
     const typed_handle_t<Tag, Index, Gen>& lhs,
     const typed_handle_t<Tag, Index, Gen>& rhs);
 

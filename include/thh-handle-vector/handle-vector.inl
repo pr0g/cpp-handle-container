@@ -16,6 +16,17 @@ namespace thh
     return !(lhs == rhs);
   }
 
+  template<typename Tag, typename Index, typename Gen>
+  bool operator<(
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs)
+  {
+    if (lhs.id_ == rhs.id_) {
+      return lhs.gen_ < rhs.gen_;
+    }
+    return lhs.id_ < rhs.id_;
+  }
+
   template<typename T, typename Tag, typename Index, typename Gen>
   void handle_vector_t<T, Tag, Index, Gen>::try_allocate_handles()
   {
