@@ -395,7 +395,7 @@ namespace thh
       for (Index i = 0; i < range; i++) {
         auto current = i;
         while (i != indices[current]) {
-          auto next = indices[current];
+          const auto next = indices[current];
           ([&](const auto it) { swap(it[current], it[next]); }(iters), ...);
           indices[current] = current;
           current = next;
