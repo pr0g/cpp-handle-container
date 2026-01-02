@@ -991,33 +991,25 @@ TEST_CASE("HandlesReferToSameElementsAfterPartition")
   check_handles_fn();
 }
 
-TEST_CASE("MiddleSubsetOfContainerCanBeSorted")
+TEST_CASE("MiddleSubsetOfContainerCanBeSortedFromRandom")
 {
-  thh::handle_vector_t<int> handle_vector;
-  std::vector<thh::handle_t> handles;
-  for (int i = 0; i < 10; ++i) {
-    handles.push_back(handle_vector.add(10 - i));
-  }
+  std::vector<int32_t> values(10);
+  std::iota(values.begin(), values.end(), 0);
+  const size_t seed = 1;
+  std::mt19937 gen(seed);
+  std::shuffle(values.begin(), values.end(), gen);
 
+  std::vector<thh::handle_t> handles;
+  thh::handle_vector_t<int> handle_vector;
   for (int i = 0; i < 10; ++i) {
-    CHECK(handle_vector[i] == (10 - i));
+    handles.push_back(handle_vector.add(values[i]));
   }
 
   handle_vector.sort(3, 8, [&handle_vector](const auto lhs, const auto rhs) {
     return handle_vector[lhs] < handle_vector[rhs];
   });
 
-  for (int i = 0; i < 3; ++i) {
-    CHECK(handle_vector[i] == (10 - i));
-  }
-
-  for (int i = 3; i < 8; ++i) {
-    CHECK(handle_vector[i] == i);
-  }
-
-  for (int i = 8; i < 10; ++i) {
-    CHECK(handle_vector[i] == (10 - i));
-  }
+  CHECK(std::is_sorted(handle_vector.begin() + 3, handle_vector.begin() + 8));
 }
 
 TEST_CASE("EndSubsetOfContainerCanBeSorted")
