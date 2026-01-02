@@ -59,6 +59,10 @@ namespace thh
   bool operator<(
     const typed_handle_t<Tag, Index, Gen>& lhs,
     const typed_handle_t<Tag, Index, Gen>& rhs);
+  template<typename Tag, typename Index, typename Gen>
+  bool operator>(
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs);
 
   using handle_t = typed_handle_t<default_tag_t, int32_t, int32_t>;
 
