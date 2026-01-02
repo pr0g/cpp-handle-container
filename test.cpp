@@ -6,6 +6,49 @@
 #include <numeric>
 #include <random>
 
+TEST_CASE("HandleComparisons")
+{
+  {
+    thh::handle_t handle_1(2, 0);
+    thh::handle_t handle_2(3, 0);
+    CHECK(handle_1 < handle_2);
+  }
+
+  {
+    thh::handle_t handle_1(2, 0);
+    thh::handle_t handle_2(3, 0);
+    CHECK(handle_2 > handle_1);
+  }
+
+  {
+    thh::handle_t handle_1(0, 1);
+    thh::handle_t handle_2(0, 2);
+    CHECK(handle_1 < handle_2);
+  }
+
+  {
+    thh::handle_t handle_1(0, 1);
+    thh::handle_t handle_2(0, 2);
+    CHECK(handle_2 > handle_1);
+  }
+
+  {
+    thh::handle_t handle_1(0, 1);
+    thh::handle_t handle_2(0, 2);
+    thh::handle_t handle_3(0, 2);
+    CHECK(handle_2 >= handle_1);
+    CHECK(handle_3 >= handle_2);
+  }
+
+  {
+    thh::handle_t handle_1(3, 1);
+    thh::handle_t handle_2(2, 2);
+    thh::handle_t handle_3(2, 2);
+    CHECK(handle_2 <= handle_1);
+    CHECK(handle_3 <= handle_2);
+  }
+}
+
 TEST_CASE("CanAllocContainer")
 {
   thh::handle_vector_t<char> handle_vector;

@@ -28,11 +28,27 @@ namespace thh
   }
 
   template<typename Tag, typename Index, typename Gen>
+  bool operator<=(
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs)
+  {
+    return !(rhs < lhs);
+  }
+
+  template<typename Tag, typename Index, typename Gen>
   bool operator>(
     const typed_handle_t<Tag, Index, Gen>& lhs,
     const typed_handle_t<Tag, Index, Gen>& rhs)
   {
     return rhs < lhs;
+  }
+
+  template<typename Tag, typename Index, typename Gen>
+  bool operator>=(
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs)
+  {
+    return !(lhs < rhs);
   }
 
   template<typename T, typename Tag, typename Index, typename Gen>

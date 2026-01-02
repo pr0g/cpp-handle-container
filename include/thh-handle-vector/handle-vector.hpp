@@ -60,7 +60,15 @@ namespace thh
     const typed_handle_t<Tag, Index, Gen>& lhs,
     const typed_handle_t<Tag, Index, Gen>& rhs);
   template<typename Tag, typename Index, typename Gen>
+  bool operator<=(
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs);
+  template<typename Tag, typename Index, typename Gen>
   bool operator>(
+    const typed_handle_t<Tag, Index, Gen>& lhs,
+    const typed_handle_t<Tag, Index, Gen>& rhs);
+  template<typename Tag, typename Index, typename Gen>
+  bool operator>=(
     const typed_handle_t<Tag, Index, Gen>& lhs,
     const typed_handle_t<Tag, Index, Gen>& rhs);
 
