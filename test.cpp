@@ -991,6 +991,35 @@ TEST_CASE("HandlesReferToSameElementsAfterPartition")
   check_handles_fn();
 }
 
+TEST_CASE("MiddleSubsetOfContainerCanBeSorted")
+{
+  thh::handle_vector_t<int> handle_vector;
+  std::vector<thh::handle_t> handles;
+  for (int i = 0; i < 10; ++i) {
+    handles.push_back(handle_vector.add(10 - i));
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+
+  handle_vector.sort(3, 8, [&handle_vector](const auto lhs, const auto rhs) {
+    return handle_vector[lhs] < handle_vector[rhs];
+  });
+
+  for (int i = 0; i < 3; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+
+  for (int i = 3; i < 8; ++i) {
+    CHECK(handle_vector[i] == i);
+  }
+
+  for (int i = 8; i < 10; ++i) {
+    CHECK(handle_vector[i] == (10 - i));
+  }
+}
+
 TEST_CASE("MiddleSubsetOfContainerCanBeSortedFromRandom")
 {
   std::vector<int32_t> values(10);
