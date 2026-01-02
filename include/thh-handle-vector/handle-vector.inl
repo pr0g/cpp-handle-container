@@ -430,9 +430,7 @@ namespace thh
         auto current = i;
         while (i != indices[current - begin]) {
           const auto next = indices[current - begin];
-          ([&](const auto it) { swap(it[current - begin], it[next - begin]); }(
-             iters),
-           ...);
+          ([&](const auto it) { swap(it[current], it[next]); }(iters), ...);
           indices[current - begin] = current;
           current = next;
         }
@@ -467,8 +465,7 @@ namespace thh
     std::iota(indices.begin(), indices.end(), begin);
     std::sort(indices.begin(), indices.end(), std::forward<Compare>(compare));
     detail::apply_permutation<Index>(
-      begin, begin + range, indices, elements_.begin() + begin,
-      element_ids_.begin() + begin);
+      begin, begin + range, indices, elements_.begin(), element_ids_.begin());
     fixup_handles(begin, begin + range);
   }
 
