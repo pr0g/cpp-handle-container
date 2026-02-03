@@ -104,6 +104,8 @@ namespace thh
     Index enqueue_ = 0;
     // number of handles that are depleted (generation is at its limit)
     Index depleted_handles_ = 0;
+    // explicit unused padding
+    Index unused_padding_;
 
     // increases the number of available handles when the underlying container
     // of elements (T) grows (the capacity increases)
